@@ -1,13 +1,24 @@
+<?php
+session_start();
+
+// Cek apakah pengguna sudah login dan memiliki role Administrator
+if (!isset($_SESSION['logged_in']) || $_SESSION['role'] != 'Administrator') {
+    header('Location: loginView.php'); // Jika tidak, arahkan ke halaman login
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-
 <style>
-     body {
+    body {
         font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
@@ -48,7 +59,6 @@
 
     .logout-button {
         color: red;
-        background-color: aliceblue;
         padding: 8px 15px;
         border-radius: 5px;
         text-decoration: none;
@@ -57,22 +67,14 @@
 </style>
 
 <body>
-     <!-- Navbar -->
-    <div class="navbar">
-        <div class="navbar-left">
-            <img src="https://unair.ac.id/wp-content/uploads/2021/04/Logo-Universitas-Airlangga-UNAIR.png"
-                style="height:50px;">
-        </div>
-        <div class="navbar-center">
-            <ul>
-                <li><a href="/RSH/admin.php">Home</a></li>
-                <li><a href="/RSH/DataMaster.php">Data Master</a></li>
-            </ul>
-        </div>
-        <div class="navbar-right">
-            <a href="logout.php" class="logout-button">Logout</a>
-        </div>
+    <?php
+    include("Navbar.php");
+    ?>
 
+    <div class="content">
+        <h2>Hai, <?php echo $_SESSION['nama'] ?>!</h2>
+        <h3>selamat datang di halaman admin</h3>
     </div>
 </body>
+
 </html>
