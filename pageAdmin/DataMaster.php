@@ -95,8 +95,10 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] != 'Administrator') {
 
     <!-- Menu Card -->
     <div class="menu-container">
-        <a href="readUser.php" class="menu-card">Data User</a>
-        <a href="manajemenRole.php" class="menu-card">Manajemen Role</a>
+        <a href="/RSH/pageAdmin/readUser.php" class="menu-card">Data User</a>
+        <a href="/RSH/pageAdmin/manajemenRole.php" class="menu-card">Manajemen Role</a>
+        <a href="/RSH/pageAdmin/pageJenisHewan/readJenisHewan.php" class="menu-card">Jenis Hewan</a>
+        <a href="/RSH/pageAdmin/pageRasHewan/readRasHewan.php" class="menu-card">Ras Hewan</a>
     </div>
 
 </body>

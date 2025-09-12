@@ -67,13 +67,13 @@
         </div>
         <div class="navbar-center">
             <ul>
-                <li><a href="admin.php">Home</a></li>
-                <li><a href="DataMaster.php">Data Master</a></li>
+                <li><a href="/RSH/pageAdmin/admin.php">Home</a></li>
+                <li><a href="/RSH/pageAdmin/DataMaster.php">Data Master</a></li>
             </ul>
         </div>
         <div class="navbar-right">
             <!-- Logout button yang terhubung ke logout.php -->
-            <a href="../pageCover/logout.php" class="logout-button">Logout</a>
+            <a href="/RSH/pageCover/logout.php" class="logout-button">Logout</a>
         </div>
     </div>
 </body>

@@ -1,117 +1,116 @@
 <?php
-// /controller/UserController.php
-
 require_once '../model/UserModel.php';
+session_start();
 
 class UserController
 {
     private $userModel;
-    private $error;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
     }
 
-    public function index()
+    /* READ list */
+    public function index(): array
     {
-        $users = $this->userModel->getAllUsers();
-        return $users;
+        return $this->userModel->getAllUsers() ?? [];
     }
 
-    public function create()
+    /* READ single (untuk form edit/reset) */
+    public function getUser(int $iduser): array
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nama = $_POST['nama'];
-            $email = $_POST['email'];
-            $password = $_POST['password'];
-            $retype_password = $_POST['retype_password'];
+        $user = $this->userModel->getUserById($iduser);
+        if (!$user) {
+            $_SESSION['error'] = 'User tidak ditemukan!';
+            header('Location: ../pageAdmin/readUser.php'); exit();
+        }
+        return $user;
+    }
 
-            if ($password !== $retype_password) {
-                $this->error = "Password dan retype password tidak sama!";
-            } elseif ($this->userModel->checkEmailExists($email)) {
-                $this->error = "Email sudah terdaftar!";
-            } elseif ($this->userModel->createUser($nama, $email, $password)) {
-                $_SESSION['message'] = "User berhasil ditambahkan!";
-                header("Location: ../pageAdmin/readUser.php");
-                exit();
-            } else {
-                $this->error = "Gagal menambahkan user baru!";
-            }
+    /* CREATE */
+    public function create(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+        $nama  = $_POST['nama'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $pass  = $_POST['password'] ?? '';
+        $re    = $_POST['retype_password'] ?? '';
+
+        if ($nama === '' || $email === '' || $pass === '' || $re === '') {
+            $_SESSION['error'] = 'Semua field wajib diisi.';
+            header('Location: ../pageAdmin/tambahUser.php'); exit();
+        }
+        if ($pass !== $re) {
+            $_SESSION['error'] = 'Password dan ulangi password tidak sama.';
+            header('Location: ../pageAdmin/tambahUser.php'); exit();
+        }
+        if ($this->userModel->checkEmailExists($email)) {
+            $_SESSION['error'] = 'Email sudah terdaftar.';
+            header('Location: ../pageAdmin/tambahUser.php'); exit();
         }
 
-        $this->showCreateForm();
-    }
-
-    private function showCreateForm()
-    {
-        include '../pageAdmin/tambahUser.php';
-    }
-
-    // ================== EDIT USER ==================
-    public function getUser($iduser)
-    {
-        // Ambil data user untuk ditampilkan di form
-        $user_data = $this->userModel->getUserById($iduser);
-        if (!$user_data) {
-            $_SESSION['message'] = "User tidak ditemukan!";
-            header("Location: ../pageAdmin/readUser.php");
-            exit();
-        }
-
-        return $user_data;
-    }
-
-    public function update($iduser)
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nama = $_POST['nama'];
-
-            if ($this->userModel->updateUser($iduser, $nama)) {
-                $_SESSION['message'] = "Data user berhasil diupdate!";
-                header("Location: ../pageAdmin/readUser.php");
-                exit();
-            } else {
-                $this->error = "Gagal mengupdate data user!";
-            }
+        if ($this->userModel->createUser($nama, $email, $pass)) {
+            $_SESSION['message'] = 'User berhasil ditambahkan.';
+            header('Location: ../pageAdmin/readUser.php'); exit();
+        } else {
+            $_SESSION['error'] = 'Gagal menambahkan user.';
+            header('Location: ../pageAdmin/tambahUser.php'); exit();
         }
     }
 
-    public function resetPassword($iduser)
+    /* UPDATE (nama) */
+    public function update(int $iduser): void
     {
-        // Ambil data user
-        $user_data = $this->userModel->getUserById($iduser);
-        if (!$user_data) {
-            $_SESSION['message'] = "User tidak ditemukan!";
-            header("Location: ../pageAdmin/readUser.php");
-            exit();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+        $nama = $_POST['nama'] ?? '';
+        if ($nama === '') {
+            $_SESSION['error'] = 'Nama tidak boleh kosong.';
+            header("Location: ../pageAdmin/edituser.php?id={$iduser}"); exit();
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $password = $_POST['password'];
-            $retype_password = $_POST['retype_password'];
+        if ($this->userModel->updateUser($iduser, $nama)) {
+            $_SESSION['message'] = 'Data user berhasil diupdate.';
+            header('Location: ../pageAdmin/readUser.php'); exit();
+        } else {
+            $_SESSION['error'] = 'Gagal mengupdate data user.';
+            header("Location: ../pageAdmin/edituser.php?id={$iduser}"); exit();
+        }
+    }
 
-            if ($password !== $retype_password) {
-                $this->error = "Password dan retype password tidak sama!";
-            } elseif ($this->userModel->updatePassword($iduser, $password)) {
-                $_SESSION['message'] = "Password berhasil diupdate!";
-                header("Location: ../pageAdmin/readUser.php");
-                exit();
-            } else {
-                $this->error = "Gagal mengupdate password!";
-            }
+    /* RESET PASSWORD */
+    public function resetPassword(int $iduser): void
+    {
+
+        // pastikan user ada
+        $user = $this->userModel->getUserById($iduser);
+        if (!$user) {
+            $_SESSION['error'] = 'User tidak ditemukan!';
+            header('Location: ../pageAdmin/readUser.php'); exit();
         }
 
-        $this->showResetForm($user_data);
-    }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
 
-    private function showResetForm($user_data)
-    {
-        include '../pageAdmin/resetPass.php';
-    }
+        $pass = $_POST['password'] ?? '';
+        $re   = $_POST['retype_password'] ?? '';
 
-    public function getError()
-    {
-        return $this->error;
+        if ($pass === '' || $re === '') {
+            $_SESSION['error'] = 'Password dan ulangi password wajib diisi.';
+            header("Location: ../pageAdmin/resetPass.php?id={$iduser}"); exit();
+        }
+        if ($pass !== $re) {
+            $_SESSION['error'] = 'Password dan ulangi password tidak sama.';
+            header("Location: ../pageAdmin/resetPass.php?id={$iduser}"); exit();
+        }
+
+        if ($this->userModel->updatePassword($iduser, $pass)) {
+            $_SESSION['message'] = 'Password berhasil diupdate.';
+            header('Location: ../pageAdmin/readUser.php'); exit();
+        } else {
+            $_SESSION['error'] = 'Gagal mengupdate password.';
+            header("Location: ../pageAdmin/resetPass.php?id={$iduser}"); exit();
+        }
     }
 }

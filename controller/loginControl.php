@@ -1,64 +1,73 @@
 <?php
 
-require_once '../model/userModel.php'; // Memasukkan model UserModel
+// /controller/loginControl.php
+require_once '../model/userModel.php'; // sesuaikan jika foldermu /models
 
 class LoginControl
 {
     private $userModel;
-    private $error;
 
     public function __construct()
     {
         $this->userModel = new userModel();
     }
 
-    // Method untuk menangani login
-    public function login()
+    public function login(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = $_POST['username'] ?? '';
-            $password = $_POST['password'] ?? '';
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
-            $user = $this->userModel->getUserByEmail($email);
+        $email    = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
 
-            if ($user && password_verify($password, $user['password'])) {
-                session_start();
-                $_SESSION['logged_in'] = true;
-                $_SESSION['iduser'] = $user['iduser'];
-                $_SESSION['username'] = $user['email'];
-                $_SESSION['nama'] = $user['nama'];
-                $_SESSION['role'] = $user['nama_role'];
+        // Validasi simple
+        if ($email === '' || $password === '') {
+            $_SESSION['error'] = 'Email dan password wajib diisi.';
+            $_SESSION['old_email'] = $email;
+            header('Location: ../pageCover/login.php'); exit();
+        }
 
-                switch ($_SESSION['role']) {
-                    case 'Administrator':
-                        header('Location: ../pageAdmin/admin.php');
-                        exit;
-                    case 'Dokter':
-                        header('Location: ../pageDokter/dokter.php');
-                        exit;
-                    case 'Perawat':
-                        header('Location: ../pagePerawat/perawat.php');
-                        exit;
-                    case 'Resepsionis':
-                        header('Location: ../pageResepsionis/receptionist.php');
-                        exit;
-                }
-            } else {
-                // Hanya set error, jangan panggil showLoginView
-                $this->error = 'Email atau password salah!';
+        $user = $this->userModel->getUserByEmail($email);
+
+        if ($user && password_verify($password, $user['password'])) {
+            // set session login
+            $_SESSION['logged_in'] = true;
+            $_SESSION['iduser']    = $user['iduser'];
+            $_SESSION['username']  = $user['email'];
+            $_SESSION['nama']      = $user['nama'];
+            $_SESSION['role']      = $user['nama_role'];
+
+            // arahkan sesuai role
+            switch ($_SESSION['role']) {
+                case 'Administrator':
+                    header('Location: ../pageAdmin/admin.php'); exit;
+                case 'Dokter':
+                    header('Location: ../pageDokter/dokter.php'); exit;
+                case 'Perawat':
+                    header('Location: ../pagePerawat/perawat.php'); exit;
+                case 'Resepsionis':
+                    header('Location: ../pageResepsionis/resepsionis.php'); exit;
+                default:
+                    // fallback kalau role tak dikenali
+                    header('Location: ../pageAdmin/admin.php'); exit;
             }
         }
+
+        // gagal login
+        $_SESSION['error'] = 'Email atau password salah.';
+        $_SESSION['old_email'] = $email;
+        header('Location: ../pageCover/login.php'); exit();
     }
 
-    public function getError()
+    // opsional: logout sederhana
+    public function logout(): void
     {
-        return $this->error;
-    }
-
-
-    // Method untuk menampilkan halaman login
-    private function showLoginView()
-    {
-        include '../pageCover/login.php'; // Menampilkan view login
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        session_unset();
+        session_destroy();
+        header('Location: ../pageCover/login.php'); exit();
     }
 }
+
+
+?>
