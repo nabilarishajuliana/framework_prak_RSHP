@@ -1,5 +1,5 @@
 <?php
-require_once '../model/roleModel.php';
+require_once 'C:/xampp/htdocs/RSH/model/roleModel.php';
 
 class RoleController
 {
@@ -21,7 +21,7 @@ class RoleController
         if (!$user) {
             if (session_status() !== PHP_SESSION_ACTIVE) session_start();
             $_SESSION['error'] = 'User tidak ditemukan.';
-            header('Location: ../pageAdmin/manajemenrole.php'); exit();
+            header('Location: /RSH/pageAdmin/pageRole/manajemenrole.php'); exit();
         }
         return $user;
     }
@@ -39,16 +39,16 @@ class RoleController
         $idrole = (int)($_POST['idrole'] ?? 0);
         if ($idrole <= 0) {
             $_SESSION['error'] = 'Silakan pilih role.';
-            header("Location: ../pageAdmin/addRoleUser.php?id={$iduser}"); exit();
+            header("Location: /RSH/pageAdmin/pageRole/addRoleUser.php?id={$iduser}"); exit();
         }
 
         $res = $this->model->addRoleForUser($iduser, $idrole);
         if ($res['ok']) {
             $_SESSION['message'] = 'Role berhasil ditambahkan ke user.';
-            header('Location: ../pageAdmin/manajemenrole.php'); exit();
+            header('Location: /RSH/pageAdmin/pageRole/manajemenrole.php'); exit();
         } else {
             $_SESSION['error'] = $res['message'] ?? 'Gagal menambah role.';
-            header("Location: ../pageAdmin/addRoleUser.php?id={$iduser}"); exit();
+            header("Location: /RSH/pageAdmin/pageRole/addRoleUser.php?id={$iduser}"); exit();
         }
     }
 
@@ -60,7 +60,7 @@ class RoleController
         $idrole = (int)($_POST['idrole'] ?? 0);
         if ($idrole <= 0) {
             $_SESSION['error'] = 'Role tidak valid.';
-            header('Location: ../pageAdmin/manajemenrole.php'); exit();
+            header('Location: /RSH/pageAdmin/pageRole/manajemenrole.php'); exit();
         }
 
         $res = $this->model->setActiveRole($iduser, $idrole);
@@ -69,6 +69,6 @@ class RoleController
         } else {
             $_SESSION['error'] = $res['message'] ?? 'Gagal menyetel role aktif.';
         }
-        header('Location: ../pageAdmin/manajemenrole.php'); exit();
+        header('Location: /RSH/pageAdmin/pageRole/manajemenrole.php'); exit();
     }
 }

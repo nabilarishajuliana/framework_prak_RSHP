@@ -1,5 +1,5 @@
 <?php
-require_once '../controller/UserController.php';
+require_once '../../controller/UserController.php';
 $controller = new UserController();
 if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Administrator') {
   header('Location: loginView.php'); exit();
@@ -16,7 +16,7 @@ unset($_SESSION['message'], $_SESSION['error']);
 <meta charset="UTF-8"><title>Reset Password</title>
 <link rel="stylesheet" href="/rsh/assets/admin.css">
 </head><body>
-<?php include 'Navbar.php'; ?>
+<?php include '../Navbar.php'; ?>
 <div class="container">
   <div class="header">
     <h1>Reset Password</h1>

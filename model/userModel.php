@@ -1,11 +1,11 @@
 <?php
 // /models/UserModel.php
 
-require_once '../DB/koneksi.php';
+require_once 'C:/xampp/htdocs/RSH/DB/koneksi.php';
 
 class userModel
 {
-    private $conn;
+    protected $conn;
 
     public function __construct()
     {
@@ -51,7 +51,7 @@ class userModel
     }
 
 
-
+    // buat LOGIN
     public function getUserByEmail($email)
     {
         $sql = "SELECT 
@@ -60,6 +60,7 @@ class userModel
                     u.email,
                     u.password,
                     ru.idrole,
+                    ru.idrole_user,
                     r.nama_role
                 FROM user u
                 LEFT JOIN role_user ru ON ru.iduser = u.iduser

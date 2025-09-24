@@ -1,5 +1,5 @@
 <?php
-require_once '../DB/koneksi.php';
+require_once 'C:/xampp/htdocs/RSH/DB/koneksi.php';
 
 class Role
 {
@@ -154,5 +154,27 @@ class Role
             $this->conn->rollback();
             return ['ok' => false, 'message' => $e->getMessage()];
         }
+    }
+
+    public function listActiveWithUser(): array
+    {
+        $sql = "
+        SELECT 
+            ru.idrole_user,
+            ru.idrole,
+            ru.status,
+            u.iduser,             
+            u.nama AS nama_user,
+            u.email,
+            r.nama_role
+        FROM role_user ru
+        JOIN user u ON u.iduser = ru.iduser
+        JOIN role r ON r.idrole = ru.idrole
+        WHERE ru.status = 1 
+          AND LOWER(r.nama_role) IN ('administrator','resepsionis')
+        ORDER BY u.nama
+    ";
+        $res = $this->conn->query($sql);
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 }

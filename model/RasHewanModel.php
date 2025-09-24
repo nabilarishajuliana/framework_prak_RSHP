@@ -88,4 +88,14 @@ class RasHewanModel
         $res = $this->conn->query($sql);
         return $res->fetch_all(MYSQLI_ASSOC);
     }
+
+    // Tambahkan di class RasHewanModel
+public function countPetByRas(int $idras_hewan): int {
+    $sql  = "SELECT COUNT(*) AS jml FROM pet WHERE idras_hewan = ?";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param("i", $idras_hewan);
+    $stmt->execute();
+    return (int)$stmt->get_result()->fetch_assoc()['jml'];
+}
+
 }

@@ -1,106 +1,86 @@
 <?php
-
-
-
 session_start();
 
-// Cek apakah pengguna sudah login dan memiliki role Administrator
-if (!isset($_SESSION['logged_in']) || $_SESSION['role'] != 'Administrator') {
-    header('Location: loginView.php'); // Jika tidak, arahkan ke halaman login
+// proteksi: hanya admin
+if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Administrator') {
+    header('Location: loginView.php');
     exit();
 }
-
-
-
-
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-        }
-
-        /* Navbar */
-        .navbar {
-            background-color: #3da6c8;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar img {
-            height: 40px;
-        }
-
-        .navbar-right {
-            display: flex;
-            gap: 20px;
-        }
-
-        .navbar-right a {
-            color: black;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        /* Container untuk card menu */
-        .menu-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 40px;
-        }
-
-        /* Card link */
-        .menu-card {
-            width: 200px;
-            height: 120px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            transition: 0.3s;
-            text-decoration: none;
-            color: #333;
-        }
-
-        .menu-card:hover {
-            background: #3da6c8;
-            color: white;
-            transform: translateY(-5px);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Dashboard Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- pake stylesheet global admin -->
+  <link rel="stylesheet" href="../Assets/admin.css" />
 </head>
-
 <body>
 
-    <?php
-    include "Navbar.php";
-    ?>
+  <?php include "Navbar.php"; ?>
 
-    <!-- Menu Card -->
-    <div class="menu-container">
-        <a href="/RSH/pageAdmin/readUser.php" class="menu-card">Data User</a>
-        <a href="/RSH/pageAdmin/manajemenRole.php" class="menu-card">Manajemen Role</a>
-        <a href="/RSH/pageAdmin/pageJenisHewan/readJenisHewan.php" class="menu-card">Jenis Hewan</a>
-        <a href="/RSH/pageAdmin/pageRasHewan/readRasHewan.php" class="menu-card">Ras Hewan</a>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Dashboard Admin</h1>
+        <p class="muted">Kelola data aplikasi klinik hewan kamu dari satu tempat.</p>
+      </div>
     </div>
 
-</body>
+    <!-- GRID MENU -->
+    <div class="menu-grid">
+      <a class="menu-tile" href="/rsh/pageAdmin/pageUser/readUser.php" aria-label="Data User">
+        <span class="tile-emoji">👤</span>
+        <span class="tile-title">Data User</span>
+      </a>
 
+      <a class="menu-tile" href="/rsh/pageAdmin/pageRole/manajemenRole.php" aria-label="Manajemen Role">
+        <span class="tile-emoji">🛡️</span>
+        <span class="tile-title">Manajemen Role</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pageJenisHewan/readJenisHewan.php" aria-label="Jenis Hewan">
+        <span class="tile-emoji">🐾</span>
+        <span class="tile-title">Jenis Hewan</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pageRasHewan/readRasHewan.php" aria-label="Ras Hewan">
+        <span class="tile-emoji">📚</span>
+        <span class="tile-title">Ras Hewan</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pagePemilik/readPemilik.php" aria-label="Pemilik">
+        <span class="tile-emoji">🏠</span>
+        <span class="tile-title">Pemilik</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pagePet/readPet.php" aria-label="Pet">
+        <span class="tile-emoji">🐶</span>
+        <span class="tile-title">Pet</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pagetemudokter/readTemuDokter.php" aria-label="Temu Dokter">
+        <span class="tile-emoji">🩺</span>
+        <span class="tile-title">Temu Dokter</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pageKategori/readKategori.php" aria-label="Kategori">
+        <span class="tile-emoji">🏷️</span>
+        <span class="tile-title">Kategori</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pageKategoriKlinis/readKategoriKlinis.php" aria-label="Kategori Klinis">
+        <span class="tile-emoji">🧬</span>
+        <span class="tile-title">Kategori Klinis</span>
+      </a>
+
+      <a class="menu-tile" href="/rsh/pageAdmin/pageKodeTindakan/readKodeTindakan.php" aria-label="Kode Tindakan">
+        <span class="tile-emoji">🧾</span>
+        <span class="tile-title">Kode Tindakan</span>
+      </a>
+    </div>
+  </div>
+
+</body>
 </html>

@@ -1,6 +1,8 @@
 <?php
 require_once 'C:/xampp/htdocs/RSH/model/jenisHewanModel.php';
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 class JenisHewanController
 {
@@ -12,7 +14,7 @@ class JenisHewanController
         $this->jenisHewanModel = new jenisHewanModel();
     }
 
-   
+
 
     // Menampilkan semua jenis hewan
     public function index()
@@ -54,7 +56,7 @@ class JenisHewanController
     }
 
     // Mengupdate data jenis hewan
-     public function update($id)
+    public function update($id)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['nama_jenis'])) {
             $nama_jenis = $_POST['nama_jenis'];
@@ -78,7 +80,7 @@ class JenisHewanController
     }
 
     // Menghapus data jenis hewan
-     public function delete($idjenis_hewan)
+    public function delete($idjenis_hewan)
     {
         if (!empty($idjenis_hewan)) {
             if ($this->jenisHewanModel->deleteJenis($idjenis_hewan)) {

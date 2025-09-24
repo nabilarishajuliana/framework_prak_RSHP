@@ -32,6 +32,7 @@ class LoginControl
         if ($user && password_verify($password, $user['password'])) {
             // set session login
             $_SESSION['logged_in'] = true;
+            $_SESSION['idrole_user']    = $user['idrole_user'];
             $_SESSION['iduser']    = $user['iduser'];
             $_SESSION['username']  = $user['email'];
             $_SESSION['nama']      = $user['nama'];

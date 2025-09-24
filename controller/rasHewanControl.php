@@ -1,7 +1,9 @@
 <?php
 require_once 'C:/xampp/htdocs/RSH/model/RasHewanModel.php';
-session_start();
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 class RasHewanController
 {
     private $model;
@@ -34,8 +36,10 @@ class RasHewanController
     // Create ras
     public function create(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' &&
-            isset($_POST['nama_ras'], $_POST['idjenis_hewan'])) {
+        if (
+            $_SERVER['REQUEST_METHOD'] === 'POST' &&
+            isset($_POST['nama_ras'], $_POST['idjenis_hewan'])
+        ) {
 
             $nama_ras = trim($_POST['nama_ras']);
             $idjenis  = (int) $_POST['idjenis_hewan'];
@@ -57,8 +61,10 @@ class RasHewanController
     // Update ras
     public function update(int $idras_hewan): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' &&
-            isset($_POST['nama_ras'], $_POST['idjenis_hewan'])) {
+        if (
+            $_SERVER['REQUEST_METHOD'] === 'POST' &&
+            isset($_POST['nama_ras'], $_POST['idjenis_hewan'])
+        ) {
 
             $nama_ras = trim($_POST['nama_ras']);
             $idjenis  = (int) $_POST['idjenis_hewan'];
@@ -80,13 +86,28 @@ class RasHewanController
     // Delete ras
     public function delete(int $idras_hewan): void
     {
-        $result = $this->model->deleteRas($idras_hewan);
+        // Pre-check
+        $count = $this->model->countPetByRas($idras_hewan);
+        if ($count > 0) {
+            $_SESSION['error'] = "Tidak bisa menghapus: ras hewan masih dipakai oleh {$count} pet.";
+            header("Location: /rsh/pageAdmin/pagerashewan/readRasHewan.php");
+            exit();
+        }
 
-        if ($result['ok'] ?? false) {
-            $_SESSION['message'] = "Ras hewan berhasil dihapus.";
-        } else {
-            $msg = $result['message'] ?? 'Gagal menghapus ras hewan.';
-            $_SESSION['error'] = $msg;
+        try {
+            $result = $this->model->deleteRas($idras_hewan);
+            if ($result['ok'] ?? false) {
+                $_SESSION['message'] = "Ras hewan berhasil dihapus.";
+            } else {
+                $msg = $result['message'] ?? 'Gagal menghapus ras hewan.';
+                $_SESSION['error'] = $msg;
+            }
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() === 1451) {
+                $_SESSION['error'] = "Tidak bisa menghapus: ras hewan dipakai oleh Pet.";
+            } else {
+                $_SESSION['error'] = 'Gagal menghapus: ' . $e->getMessage();
+            }
         }
 
         header("Location: /rsh/pageAdmin/pagerashewan/readRasHewan.php");

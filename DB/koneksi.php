@@ -33,6 +33,11 @@ class Database {
 
     // Koneksi hanya dibuat saat dibutuhkan
     public function connect() {
+        static $configured = false;
+        if (!$configured) {
+            mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+            $configured = true;
+        }
         if ($this->conn === null) { // Hanya buat koneksi jika belum ada
             $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->db);
             if ($this->conn->connect_error) {

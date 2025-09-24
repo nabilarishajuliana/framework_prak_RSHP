@@ -1,6 +1,6 @@
 <?php
-require_once '../model/UserModel.php';
-session_start();
+require_once 'C:/xampp/htdocs/RSH/model/UserModel.php';
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
 class UserController
 {
@@ -23,7 +23,7 @@ class UserController
         $user = $this->userModel->getUserById($iduser);
         if (!$user) {
             $_SESSION['error'] = 'User tidak ditemukan!';
-            header('Location: ../pageAdmin/readUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/readUser.php'); exit();
         }
         return $user;
     }
@@ -40,23 +40,23 @@ class UserController
 
         if ($nama === '' || $email === '' || $pass === '' || $re === '') {
             $_SESSION['error'] = 'Semua field wajib diisi.';
-            header('Location: ../pageAdmin/tambahUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/tambahUser.php'); exit();
         }
         if ($pass !== $re) {
             $_SESSION['error'] = 'Password dan ulangi password tidak sama.';
-            header('Location: ../pageAdmin/tambahUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/tambahUser.php'); exit();
         }
         if ($this->userModel->checkEmailExists($email)) {
             $_SESSION['error'] = 'Email sudah terdaftar.';
-            header('Location: ../pageAdmin/tambahUser.php'); exit();
+            header('Location:/RSH/pageAdmin/pageUser/tambahUser.php'); exit();
         }
 
         if ($this->userModel->createUser($nama, $email, $pass)) {
             $_SESSION['message'] = 'User berhasil ditambahkan.';
-            header('Location: ../pageAdmin/readUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/readUser.php'); exit();
         } else {
             $_SESSION['error'] = 'Gagal menambahkan user.';
-            header('Location: ../pageAdmin/tambahUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/tambahUser.php'); exit();
         }
     }
 
@@ -68,15 +68,15 @@ class UserController
         $nama = $_POST['nama'] ?? '';
         if ($nama === '') {
             $_SESSION['error'] = 'Nama tidak boleh kosong.';
-            header("Location: ../pageAdmin/edituser.php?id={$iduser}"); exit();
+            header("Location: /RSH/pageAdmin/pageUser/edituser.php?id={$iduser}"); exit();
         }
 
         if ($this->userModel->updateUser($iduser, $nama)) {
             $_SESSION['message'] = 'Data user berhasil diupdate.';
-            header('Location: ../pageAdmin/readUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/readUser.php'); exit();
         } else {
             $_SESSION['error'] = 'Gagal mengupdate data user.';
-            header("Location: ../pageAdmin/edituser.php?id={$iduser}"); exit();
+            header("Location:/RSH/pageAdmin/pageUser/edituser.php?id={$iduser}"); exit();
         }
     }
 
@@ -88,7 +88,7 @@ class UserController
         $user = $this->userModel->getUserById($iduser);
         if (!$user) {
             $_SESSION['error'] = 'User tidak ditemukan!';
-            header('Location: ../pageAdmin/readUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/readUser.php'); exit();
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
@@ -98,19 +98,19 @@ class UserController
 
         if ($pass === '' || $re === '') {
             $_SESSION['error'] = 'Password dan ulangi password wajib diisi.';
-            header("Location: ../pageAdmin/resetPass.php?id={$iduser}"); exit();
+            header("Location: /RSH/pageAdmin/pageUser/resetPass.php?id={$iduser}"); exit();
         }
         if ($pass !== $re) {
             $_SESSION['error'] = 'Password dan ulangi password tidak sama.';
-            header("Location: ../pageAdmin/resetPass.php?id={$iduser}"); exit();
+            header("Location: /RSH/pageAdmin/pageUser/resetPass.php?id={$iduser}"); exit();
         }
 
         if ($this->userModel->updatePassword($iduser, $pass)) {
             $_SESSION['message'] = 'Password berhasil diupdate.';
-            header('Location: ../pageAdmin/readUser.php'); exit();
+            header('Location: /RSH/pageAdmin/pageUser/readUser.php'); exit();
         } else {
             $_SESSION['error'] = 'Gagal mengupdate password.';
-            header("Location: ../pageAdmin/resetPass.php?id={$iduser}"); exit();
+            header("Location: /RSH/pageAdmin/pageUser/resetPass.php?id={$iduser}"); exit();
         }
     }
 }

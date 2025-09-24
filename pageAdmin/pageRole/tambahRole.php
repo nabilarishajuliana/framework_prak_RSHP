@@ -3,7 +3,7 @@ session_start();
 if (!isset($_SESSION['logged_in']) || $_SESSION['role'] != 'Administrator') {
     header('Location: loginView.php'); exit();
 }
-require_once '../controller/RoleController.php';
+require_once '../../controller/RoleController.php';
 $controller = new RoleController();
 
 $iduser = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -30,7 +30,7 @@ unset($_SESSION['message'], $_SESSION['error']);
   <link rel="stylesheet" href="/rsh/assets/admin.css">
 </head>
 <body>
-<?php include 'Navbar.php'; ?>
+<?php include '../Navbar.php'; ?>
 
 <div class="container">
   <div class="header">
