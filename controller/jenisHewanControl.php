@@ -85,9 +85,7 @@ class JenisHewanController
         if (!empty($idjenis_hewan)) {
             if ($this->jenisHewanModel->deleteJenis($idjenis_hewan)) {
                 $_SESSION['message'] = "Jenis hewan berhasil dihapus!";
-            } else {
-                $_SESSION['error'] = "Gagal menghapus jenis hewan!";
-            }
+            } 
         } else {
             $_SESSION['error'] = "ID jenis hewan tidak valid!";
         }

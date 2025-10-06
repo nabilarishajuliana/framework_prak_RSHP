@@ -216,7 +216,7 @@
                 maka dari itu Rumah Sakit Hewan Pendidikan Universitas Airlangga mempunyai fitur pendaftaran online
                 yang mempermudah untuk mendaftarkan hewan kesayangan anda.
             </p>
-            <button class="btn-blue">INFORMASI JADWAL DOKTER JAGA</button>
+            <button class="btn-blue"><a href="layananUmum.php">INFORMASI JADWAL DOKTER JAGA</a></button>
         </div>
         <div class="content-video">
             <iframe width="470" height="265" src="https://www.youtube.com/embed/rCfvZPECZvE" title="Profil RSHP"

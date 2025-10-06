@@ -1,26 +1,26 @@
 <?php
-session_start();
-if (!isset($_SESSION['logged_in']) || $_SESSION['role'] != 'Administrator') {
-    header('Location: loginView.php'); exit();
-}
-require_once '../../controller/RoleController.php';
-$controller = new RoleController();
+// session_start();
+// if (!isset($_SESSION['logged_in']) || $_SESSION['role'] != 'Administrator') {
+//     header('Location: loginView.php'); exit();
+// }
+// require_once '../../controller/RoleController.php';
+// $controller = new RoleController();
 
-$iduser = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$user   = $controller->getUserBasic($iduser);
+// $iduser = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+// $user   = $controller->getUserBasic($iduser);
 
-/* Submit tambah role */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller->addRole($iduser);
-    exit;
-}
+// /* Submit tambah role */
+// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//     $controller->addRole($iduser);
+//     exit;
+// }
 
-$availableRoles = $controller->listAvailableRoles($iduser);
+// $availableRoles = $controller->listAvailableRoles($iduser);
 
-/* Flash */
-$msg = $_SESSION['message'] ?? null;
-$err = $_SESSION['error'] ?? null;
-unset($_SESSION['message'], $_SESSION['error']);
+// /* Flash */
+// $msg = $_SESSION['message'] ?? null;
+// $err = $_SESSION['error'] ?? null;
+// unset($_SESSION['message'], $_SESSION['error']);
 ?>
 <!DOCTYPE html>
 <html lang="id">

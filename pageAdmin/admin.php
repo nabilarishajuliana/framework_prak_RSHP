@@ -1,11 +1,8 @@
 <?php
 session_start();
 
-// proteksi admin
-if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Administrator') {
-    header('Location: loginView.php');
-    exit();
-}
+require_once 'C:/xampp/htdocs/RSH/controller/RoleLogincheck.php';
+new RoleLoginCheck('Administrator');
 
 // (opsional) statistik cepat
 require_once 'C:/xampp/htdocs/RSH/DB/koneksi.php';

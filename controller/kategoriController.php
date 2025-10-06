@@ -49,7 +49,9 @@ class KategoriController
     public function delete($id)
     {
         $ok = $this->model->delete($id);
-        $_SESSION[$ok ? 'message' : 'error'] = $ok ? 'Kategori berhasil dihapus!' : 'Gagal menghapus kategori!';
+        if ($ok) {
+            $_SESSION['message'] = 'Kategori berhasil dihapus!';
+        }
         header("Location: /rsh/pageAdmin/pagekategori/readKategori.php");
         exit();
     }

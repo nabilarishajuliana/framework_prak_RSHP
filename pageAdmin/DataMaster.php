@@ -1,11 +1,6 @@
 <?php
-session_start();
-
-// proteksi: hanya admin
-if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Administrator') {
-    header('Location: loginView.php');
-    exit();
-}
+require_once 'C:/xampp/htdocs/RSH/controller/RoleLogincheck.php';
+new RoleLoginCheck('Administrator');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,6 +74,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['role'] !== 'Administrator') {
         <span class="tile-emoji">🧾</span>
         <span class="tile-title">Kode Tindakan</span>
       </a>
+
+      <!-- <a class="menu-tile" href="/rsh/pageAdmin/pageRekamMedis/readRekamMedis.php" aria-label="Kode Tindakan">
+        <span class="tile-emoji">🧾</span>
+        <span class="tile-title">rekam Medis</span>
+      </a> -->
     </div>
   </div>
 

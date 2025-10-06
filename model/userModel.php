@@ -90,4 +90,63 @@ class userModel
         $stmt->bind_param("si", $hashedPassword, $iduser);
         return $stmt->execute();
     }
+
+    // === List user aktif berdasarkan nama role ===
+    public function getActiveUsersByRole(string $roleName): array
+    {
+        $sql = "SELECT u.iduser, u.nama, u.email,ru.idrole_user,r.nama_role
+              FROM user u
+              JOIN role_user ru ON ru.iduser = u.iduser AND ru.status = 1
+              JOIN role r       ON r.idrole = ru.idrole
+             WHERE LOWER(r.nama_role) = LOWER(?)
+          ORDER BY u.nama";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $roleName);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    // === Shortcut khusus Dokter (aktif) ===
+    public function getDoctors(): array
+    {
+        return $this->getActiveUsersByRole('Dokter');
+    }
+
+    //     public function getAllUsersWithActiveRole(): array
+    // {
+    //     $sql = "SELECT 
+    //                 u.iduser, 
+    //                 u.nama, 
+    //                 u.email,
+    //                 r.nama_role AS role_name
+    //             FROM user u
+    //             LEFT JOIN role_user ru 
+    //                 ON u.iduser = ru.iduser AND ru.status = 1
+    //             LEFT JOIN role r 
+    //                 ON ru.idrole = r.idrole
+    //             ORDER BY u.iduser DESC";
+    //     $result = $this->conn->query($sql);
+    //     return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    // }
+
+    public function getAllUsersWithActiveRoleNonPemilik(): array
+    {
+        $sql = "SELECT 
+                u.iduser, 
+                u.nama, 
+                u.email,
+                r.nama_role AS role_name
+            FROM user u
+            LEFT JOIN role_user ru 
+                ON u.iduser = ru.iduser AND ru.status = 1
+            LEFT JOIN role r 
+                ON ru.idrole = r.idrole
+            WHERE u.iduser NOT IN (
+                SELECT iduser FROM pemilik
+            )
+            ORDER BY u.iduser DESC";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
 }

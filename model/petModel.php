@@ -57,11 +57,22 @@ class PetModel
     // DELETE
     public function deletePet($idpet)
     {
-        $sql = "DELETE FROM pet WHERE idpet=?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("i", $idpet);
-        return $stmt->execute();
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM pet WHERE idpet = ?");
+            $stmt->bind_param("i", $idpet);
+            $stmt->execute();
+
+            return true;
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() == 1451) {
+                $_SESSION['error'] = 'Tidak dapat menghapus hewan karena masih digunakan di tabel temu dokter atau rekam medis.';
+            } else {
+                $_SESSION['error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+            }
+            return false;
+        }
     }
+
 
     public function listForDropdown(): array
     {

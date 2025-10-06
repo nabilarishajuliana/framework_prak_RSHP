@@ -11,6 +11,6 @@ session_unset();
 session_destroy();
 
 // Redirect ke halaman login
-header("Location: ../pageCover/login.php");
+header("Location: /RSH/pageCover/login.php");
 exit();
 ?>

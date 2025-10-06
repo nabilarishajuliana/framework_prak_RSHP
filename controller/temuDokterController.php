@@ -73,12 +73,17 @@ class TemuDokterController
     // Hapus
     public function delete(int $id): void
     {
-        if ($this->model->delete($id)) {
-            $_SESSION['message'] = 'Antrian berhasil dihapus.';
-        } else {
-            $_SESSION['error']   = 'Gagal menghapus antrian.';
+        $ok = $this->model->delete($id);
+        if ($ok) {
+            $_SESSION['message'] = 'Antrian berhasil dihapus!';
         }
         header('Location: /rsh/pageAdmin/pageTemuDokter/readTemuDokter.php');
         exit();
+    }
+
+
+    public function getQueuesByPet(int $idpet): array
+    {
+        return $this->model->getQueuesByPet($idpet);
     }
 }

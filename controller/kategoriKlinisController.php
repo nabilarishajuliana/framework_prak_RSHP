@@ -50,7 +50,9 @@ class KategoriKlinisController
     public function delete($id)
     {
         $ok = $this->model->delete($id);
-        $_SESSION[$ok ? 'message' : 'error'] = $ok ? 'Kategori klinis berhasil dihapus!' : 'Gagal menghapus kategori klinis!';
+        if ($ok) {
+            $_SESSION['message'] = 'Kategori klinis berhasil dihapus!';
+        }
         header("Location: /rsh/pageAdmin/pagekategoriklinis/readKategoriKlinis.php");
         exit();
     }

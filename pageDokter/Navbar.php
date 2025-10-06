@@ -1,6 +1,6 @@
 <?php
 require_once 'C:/xampp/htdocs/RSH/controller/RoleLogincheck.php';
-new RoleLoginCheck('Administrator');
+new RoleLoginCheck('Dokter');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,8 +67,8 @@ new RoleLoginCheck('Administrator');
         </div>
         <div class="navbar-center">
             <ul>
-                <li><a href="/RSH/pageAdmin/admin.php">Home</a></li>
-                <li><a href="/RSH/pageAdmin/DataMaster.php">Data Master</a></li>
+                <li><a href="/RSH/pageDokter/dokter.php">Home</a></li>
+                <li><a href="/RSH/pageDokter/pageRekamMedis/readrekammedis.php">Data Master</a></li>
             </ul>
         </div>
         <div class="navbar-right">

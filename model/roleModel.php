@@ -118,43 +118,35 @@ class Role
     }
 
     /* === Set 1 role aktif untuk user === */
-    public function setActiveRole(int $iduser, int $idrole): array
-    {
-        try {
-            $this->conn->begin_transaction();
+    // public function setActiveRole(int $iduser, int $idrole): array
+    // {
+    //     try {
+    //         $this->conn->begin_transaction();
 
-            // non-aktifkan semua role user
-            $sql = "UPDATE role_user SET status = 0 WHERE iduser = ?";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("i", $iduser);
-            if (!$stmt->execute()) throw new Exception($stmt->error);
+    //         // non-aktifkan semua role user
+    //         $sql = "UPDATE role_user SET status = 0 WHERE iduser = ?";
+    //         $stmt = $this->conn->prepare($sql);
+    //         $stmt->bind_param("i", $iduser);
+    //         if (!$stmt->execute()) throw new Exception($stmt->error);
 
-            // aktifkan role yang dipilih (jika belum ada, buat baru)
-            $sql = "UPDATE role_user SET status = 1 WHERE iduser = ? AND idrole = ?";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->bind_param("ii", $iduser, $idrole);
-            if (!$stmt->execute()) throw new Exception($stmt->error);
+    //         // aktifkan role yang dipilih (jika belum ada, buat baru)
+    //         $sql = "UPDATE role_user SET status = 1 WHERE iduser = ? AND idrole = ?";
+    //         $stmt = $this->conn->prepare($sql);
+    //         $stmt->bind_param("ii", $iduser, $idrole);
+    //         if (!$stmt->execute()) throw new Exception($stmt->error);
 
-            if ($stmt->affected_rows === 0) {
-                $this->conn->rollback();
-                return ['ok' => false, 'message' => 'User belum memiliki role tersebut. Tambahkan role dulu.'];
-            }
+    //         if ($stmt->affected_rows === 0) {
+    //             $this->conn->rollback();
+    //             return ['ok' => false, 'message' => 'User belum memiliki role tersebut. Tambahkan role dulu.'];
+    //         }
 
-            // if ($stmt->affected_rows === 0) {
-            //     // belum ada baris untuk kombinasi ini → insert
-            //     $sql = "INSERT INTO role_user (iduser, idrole, status) VALUES (?, ?, 1)";
-            //     $stmt = $this->conn->prepare($sql);
-            //     $stmt->bind_param("ii", $iduser, $idrole);
-            //     if (!$stmt->execute()) throw new Exception($stmt->error);
-            // }
-
-            $this->conn->commit();
-            return ['ok' => true];
-        } catch (Exception $e) {
-            $this->conn->rollback();
-            return ['ok' => false, 'message' => $e->getMessage()];
-        }
-    }
+    //         $this->conn->commit();
+    //         return ['ok' => true];
+    //     } catch (Exception $e) {
+    //         $this->conn->rollback();
+    //         return ['ok' => false, 'message' => $e->getMessage()];
+    //     }
+    // }
 
     public function listActiveWithUser(): array
     {
@@ -176,5 +168,27 @@ class Role
     ";
         $res = $this->conn->query($sql);
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
+    public function setActiveRole(int $iduser, int $idrole): bool
+    {
+        // Nonaktifkan semua role user
+        $this->conn->query("UPDATE role_user SET status = 0 WHERE iduser = " . (int)$iduser);
+
+        // Cek apakah role tsb sudah ada
+        $stmt = $this->conn->prepare("SELECT idrole_user FROM role_user WHERE iduser = ? AND idrole = ?");
+        $stmt->bind_param("ii", $iduser, $idrole);
+        $stmt->execute();
+        $r = $stmt->get_result()->fetch_assoc();
+
+        if ($r) {
+            $stmt2 = $this->conn->prepare("UPDATE role_user SET status = 1 WHERE idrole_user = ?");
+            $stmt2->bind_param("i", $r['idrole_user']);
+            return $stmt2->execute();
+        } else {
+            $stmt3 = $this->conn->prepare("INSERT INTO role_user (iduser, idrole, status) VALUES (?,?,1)");
+            $stmt3->bind_param("ii", $iduser, $idrole);
+            return $stmt3->execute();
+        }
     }
 }

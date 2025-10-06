@@ -1,7 +1,9 @@
 <?php
 
 require_once 'C:/xampp/htdocs/RSH/DB/koneksi.php';
-
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 class jenisHewanModel
 {
@@ -10,6 +12,7 @@ class jenisHewanModel
     public function __construct()
     {
         $this->conn = (new Database())->getConnection(); // Mendapatkan koneksi database
+
     }
 
     // Create: Menambah user baru
@@ -26,7 +29,7 @@ class jenisHewanModel
     // Read: Mendapatkan data pengguna berdasarkan ID
     public function getJenisById($id)
     {
-         $query = "SELECT * FROM jenis_hewan WHERE idjenis_hewan = ?";
+        $query = "SELECT * FROM jenis_hewan WHERE idjenis_hewan = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -50,10 +53,22 @@ class jenisHewanModel
         return $stmt->execute(); // Eksekusi query update
     }
 
-    public function deleteJenis($id) {
-        $query = "DELETE FROM jenis_hewan WHERE idjenis_hewan = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("i", $id);
-        return $stmt->execute();
+    public function deleteJenis($idjenis_hewan)
+    {
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM jenis_hewan WHERE idjenis_hewan = ?");
+            $stmt->bind_param("i", $idjenis_hewan);
+            $stmt->execute();
+
+            return true; // kalau sukses
+        } catch (mysqli_sql_exception $e) {
+            // Tangkap error foreign key
+            if ($e->getCode() == 1451) {
+                $_SESSION['error'] = 'Tidak dapat menghapus jenis hewan, karena masih digunakan di tabel ras hewan.';
+            } else {
+                $_SESSION['error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+            }
+            return false;
+        }
     }
 }

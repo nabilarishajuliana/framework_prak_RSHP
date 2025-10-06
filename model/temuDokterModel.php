@@ -26,10 +26,11 @@ class TemuDokterModel
     JOIN role_user ru ON ru.idrole_user = td.idrole_user
     JOIN user u_creator ON ru.iduser = u_creator.iduser
     WHERE DATE(td.waktu_daftar) = CURDATE()
-    ORDER BY td.no_urut ASC, td.waktu_daftar ASC";
+    ORDER BY  td.waktu_daftar DESC,td.no_urut ";
         $res = $this->conn->query($sql);
         return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
+
 
     /** Ambil 1 antrian */
     public function getById(int $id): ?array
@@ -85,10 +86,39 @@ class TemuDokterModel
     }
 
     /** Hapus antrian */
-    public function delete(int $id): bool
+    public function delete($id)
     {
-        $st = $this->conn->prepare("DELETE FROM temu_dokter WHERE idreservasi_dokter=?");
-        $st->bind_param("i", $id);
-        return $st->execute();
+        try {
+            $stmt = $this->conn->prepare("DELETE FROM temu_dokter WHERE idreservasi_dokter = ?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+
+            return true;
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() == 1451) {
+                $_SESSION['error'] = 'Tidak dapat menghapus data temu dokter karena masih digunakan di tabel rekam medis.';
+            } else {
+                $_SESSION['error'] = 'Terjadi kesalahan: ' . $e->getMessage();
+            }
+            return false;
+        }
+    }
+
+
+
+    public function getQueuesByPet(int $idpet): array
+    {
+        $sql = "SELECT td.idreservasi_dokter, td.no_urut, td.waktu_daftar, td.status,
+                   p.idpet, p.nama AS nama_pet
+            FROM temu_dokter td
+            JOIN pet p ON p.idpet = td.idpet
+            WHERE td.idpet = ?
+            ORDER BY td.waktu_daftar DESC, td.no_urut ASC";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $idpet);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 }

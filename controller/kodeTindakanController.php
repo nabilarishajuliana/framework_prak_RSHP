@@ -68,7 +68,9 @@ class KodeTindakanTerapiController
     public function delete($id)
     {
         $ok = $this->model->delete($id);
-        $_SESSION[$ok ? 'message' : 'error'] = $ok ? 'Data berhasil dihapus!' : 'Gagal menghapus data!';
+        if ($ok) {
+            $_SESSION['message'] = 'Kode tindakan berhasil dihapus!';
+        }
         header("Location: /rsh/pageAdmin/pagekodetindakan/readKodeTindakan.php");
         exit();
     }

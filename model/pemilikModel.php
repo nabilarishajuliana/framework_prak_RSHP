@@ -111,13 +111,49 @@ class PemilikModel extends UserModel
     }
 
     // Tambahkan di class PemilikModel
-public function countPetByPemilik(int $idpemilik): int {
-    $sql  = "SELECT COUNT(*) AS jml FROM pet WHERE idpemilik = ?";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bind_param("i", $idpemilik);
-    $stmt->execute();
-    $jml = (int)$stmt->get_result()->fetch_assoc()['jml'];
-    return $jml;
-}
+    public function countPetByPemilik(int $idpemilik): int
+    {
+        $sql  = "SELECT COUNT(*) AS jml FROM pet WHERE idpemilik = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $idpemilik);
+        $stmt->execute();
+        $jml = (int)$stmt->get_result()->fetch_assoc()['jml'];
+        return $jml;
+    }
 
+    // Ambil data pemilik berdasarkan user_id
+    // public function getPemilikByemail( $email)
+    // {
+    //     $sql = "SELECT u.iduser,u.nama,u.email,u.password,p.idpemilik,p.no_wa,p.alamat
+    //      FROM user u  join pemilik p on u.iduser = p.iduser WHERE u.email = ?";
+    //     $stmt = $this->conn->prepare($sql);
+    //     $stmt->bind_param("i", $email);
+    //     $stmt->execute();
+    //     return $stmt->get_result()->fetch_assoc() ?? [];
+    // }
+
+    public function getPemilikByemail($email)
+    {
+        // Gunakan prepared statement dan bind parameter
+        $sql = "SELECT u.iduser, u.nama, u.email, u.password, p.idpemilik, p.no_wa, p.alamat
+            FROM user u 
+            JOIN pemilik p ON u.iduser = p.iduser 
+            WHERE u.email = ?";
+
+        $stmt = $this->conn->prepare($sql);    // Siapkan query
+        $stmt->bind_param("s", $email);         // Bind parameter untuk email (tipe string 's')
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc() ?? [];
+    }
+
+
+    // Ambil semua pets berdasarkan pemilik_id
+    public function getPetsByPemilikId(int $pemilikId): array
+    {
+        $sql = "SELECT  * FROM pet WHERE idpemilik = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("i", $pemilikId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 }
