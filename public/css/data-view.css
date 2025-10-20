@@ -1,0 +1,276 @@
+/* ===== STYLE: Jenis Hewan Page ===== */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f7f9fc;
+    margin: 0;
+    color: #2b2b2b;
+}
+
+/* Container utama */
+.container {
+    max-width: 900px;
+    margin: 50px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    padding: 30px 40px;
+}
+
+/* Header title & button tambah */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header h2 {
+    font-size: 1.6rem;
+    color: #1b1b1b;
+    font-weight: 600;
+}
+
+.btn-add {
+    background-color: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.btn-add:hover {
+    background-color: #1d4ed8;
+}
+
+/* Table style */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    border-radius: 12px;
+}
+
+th, td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #374151;
+}
+
+tr:hover {
+    background-color: #f9fafb;
+    transition: background 0.3s ease;
+}
+
+/* Badge style untuk nama hewan */
+.badge {
+    background-color: #e0f2fe;
+    color: #2563eb;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
+
+/* Tombol Aksi */
+.btn-edit {
+    background-color: #f3f4f6;
+    color: #111827;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit:hover {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.btn-delete {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: #b91c1c;
+}
+
+/* Footer info */
+.footer-info {
+    text-align: right;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+
+    .header h2 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Perbaikan spacing dan struktur table agar seimbang */
+.data-container {
+    max-width: 900px;
+    margin: 60px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    padding: 30px 40px;
+}
+
+.data-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.data-header h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #1b1b1b;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+th {
+    background-color: #f9fafb;
+    color: #374151;
+    font-weight: 600;
+    text-align: left;
+}
+
+tr:hover {
+    background-color: #f8fafc;
+    transition: background 0.3s ease;
+}
+
+/* Badge style */
+.badge {
+    background-color: #e0f2fe;
+    color: #2563eb;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
+
+/* Tombol */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-edit {
+    background-color: #f3f4f6;
+    color: #111827;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit:hover {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.btn-delete {
+    background-color: #dc2626;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: #b91c1c;
+}
+
+/* Tombol Tambah */
+.btn-add {
+    background-color: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.btn-add:hover {
+    background-color: #1d4ed8;
+}
+
+/* Footer info */
+.footer-info {
+    text-align: right;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+/* Background lembut biar selaras */
+body {
+    background-color: #f7f9fc;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+    .data-container {
+        padding: 20px;
+    }
+    th, td {
+        padding: 10px;
+    }
+}

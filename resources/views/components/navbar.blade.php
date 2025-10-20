@@ -4,17 +4,17 @@
     <h2>RSHP</h2>
     <ul>
         <li>
-            <a href="{{ url('/home') }}" class="{{ request()->is('home') ? 'active' : '' }}">
+            <a href="{{ route('home') }}" class="{{ request()->is('home') ? 'active' : '' }}">
                 Home
             </a>
         </li>
         <li>
-            <a href="{{ url('/layanan') }}" class="{{ request()->is('layanan') ? 'active' : '' }}">
+            <a href="{{ route('layanan') }}"class="{{ request()->is('layanan') ? 'active' : '' }}">
                 Layanan
             </a>
         </li>
         <li>
-            <a href="{{ url('/kontak') }}" class="{{ request()->is('kontak') ? 'active' : '' }}">
+            <a href="{{ route('kontak') }}" class="{{ request()->is('kontak') ? 'active' : '' }}">
                 Kontak
             </a>
         </li>
