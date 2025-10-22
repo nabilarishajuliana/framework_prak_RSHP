@@ -20,6 +20,11 @@ use App\Http\Controllers\UserController;
 //     return view('pageCover.home');
 // });
 
+use App\Http\Controllers\PemilikController;
+
+//pemilik
+Route::get('/pemilik', [PemilikController::class, 'index'])->name('pemilik');
+
 //user
 Route::get('/user', [UserController::class, 'index'])->name('user');
 
