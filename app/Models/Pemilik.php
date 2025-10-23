@@ -12,15 +12,15 @@ class Pemilik extends Model
 
     protected $fillable = ['alamat', 'no_wa', 'iduser'];
 
-    // Relasi ke tabel User
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'iduser', 'iduser');
-    }
-
     // Relasi ke tabel Pet
     public function pet()
     {
         return $this->hasMany(Pet::class, 'idpemilik', 'idpemilik');
+    }
+
+    // Relasi ke tabel User
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'iduser', 'iduser');
     }
 }

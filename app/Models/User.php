@@ -64,10 +64,14 @@ class User extends Authenticatable
         return $this->hasOne(Pemilik::class, 'iduser', 'iduser');
     }
 
-    public function roleUser()
-    {
-        return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
-    }
+    // public function roleUser()
+    // {
+    //     return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
+    // }
 
-    
+    public function roles()
+    {
+        // belongsToMany( ModelTujuan, nama_tabel_pivot, fk_di_tabel_ini, fk_di_tabel_tujuan )
+        return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole');
+    }
 }

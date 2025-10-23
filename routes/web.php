@@ -11,16 +11,8 @@ use App\Http\Controllers\KodeTindakanTerapiController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
-
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
-// Route::get('/home', function () {
-//     return view('pageCover.home');
-// });
-
 use App\Http\Controllers\PemilikController;
+
 
 //pemilik
 Route::get('/pemilik', [PemilikController::class, 'index'])->name('pemilik');
@@ -63,3 +55,11 @@ Route::get('/cek-koneksi', function () {
         return "❌ Koneksi database gagal: " . $e->getMessage();
     }
 });
+
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+// Route::get('/home', function () {
+//     return view('pageCover.home');
+// });

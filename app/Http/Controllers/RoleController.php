@@ -10,8 +10,8 @@ class RoleController extends Controller
      public function index()
     {
         // Ambil semua role + relasi ke role_user
-        $role = Role::with('roleUser.user')->get();
+        $roles = Role::with('users')->get();
 
-        return view('pagerole.index', compact('role'));
+        return view('pagerole.index', compact('roles'));
     }
 }
