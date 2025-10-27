@@ -18,12 +18,9 @@ class Role extends Model
     //     return $this->hasMany(RoleUser::class, 'idrole', 'idrole');
     // }
 
-    // Relasi ke User langsung (kalau tabel user juga punya kolom idrole)
-    // public function user()
-    // {
-    //     return $this->hasMany(User::class, 'idrole', 'idrole');
-    // }
+    
 
+    //many to many
     public function users()
     {
         return $this->belongsToMany(User::class, 'role_user', 'idrole', 'iduser');

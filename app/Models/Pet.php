@@ -18,7 +18,7 @@ class Pet extends Model
         'idpemilik'
     ];
 
-    // Relasi ke tabel Pemilik
+    // Relasi ke tabel Pemilik (one to many)
     public function pemilik()
     {
         return $this->belongsTo(Pemilik::class, 'idpemilik', 'idpemilik')->with('user');

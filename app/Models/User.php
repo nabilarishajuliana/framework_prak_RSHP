@@ -58,7 +58,7 @@ class User extends Authenticatable
         'idrole'
     ];
 
-    // Relasi ke Pemilik (satu user bisa jadi pemilik)
+    //one to one
     public function pemilik()
     {
         return $this->hasOne(Pemilik::class, 'iduser', 'iduser');
@@ -69,6 +69,7 @@ class User extends Authenticatable
     //     return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
     // }
 
+    //many to many
     public function roles()
     {
         // belongsToMany( ModelTujuan, nama_tabel_pivot, fk_di_tabel_ini, fk_di_tabel_tujuan )
