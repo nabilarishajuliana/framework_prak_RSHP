@@ -14,7 +14,7 @@ use App\Models\Role;
 
 class LoginController extends Controller
 {
-    
+
 
     use AuthenticatesUsers;
 
@@ -36,7 +36,7 @@ class LoginController extends Controller
     //     $this->middleware('auth')->only('logout');
     // }
 
-     public function showLoginForm()
+    public function showLoginForm()
     {
         return view('auth.login');
     }
@@ -70,14 +70,45 @@ class LoginController extends Controller
         // 🔹 Login user
         Auth::login($user);
 
+        $activeRole = $user->roles()->wherePivot('status', 1)->first();
+
         // 🔹 Simpan info penting ke session (opsional)
         $request->session()->put([
             'user_id' => $user->iduser,
             'user_name' => $user->nama,
             'user_email' => $user->email,
+            'user_role'      => $activeRole->idrole ?? 'user', // idrole dari tabel role
+            'user_role_name' => $activeRole->nama_role ?? 'User', // nama_role dari tabel role
+            'user_status'    => $activeRole->pivot->status ?? 1, // status dari tabel pivot role_user
+            'idrole_user'    => $activeRole->pivot->idrole_user ?? null, // id dari tabel pivot role_user
+
         ]);
 
-        return redirect()->intended('/home')->with('success', 'Login berhasil!');
+        // return redirect()->intended('/home')->with('success', 'Login berhasil!');
+
+
+        // if (!$activeRole) {
+        //     Auth::logout();
+        //     return redirect('/login')->with('error', 'Tidak ada role aktif untuk akun ini.');
+        // }
+
+        // 🔹 Redirect berdasarkan role
+        $idrole = $activeRole->idrole ;
+
+        switch ($idrole) {
+            case '1':
+                return redirect()->route('admin.dashboard')-> with('success', 'Selamat datang Administrator!');
+            case '2':
+                return redirect('/dokter/dashboard')->with('success', 'Selamat datang Dokter!');
+            case '3':
+                return redirect('/perawat/dashboard')->with('success', 'Selamat datang Perawat!');
+            case '4':
+                return redirect()->route('resepsionis.dashboard')->with('success', 'Selamat datang Resepsionis!');
+            // case 'Pemilik':
+            //     return redirect('/pemilik/dashboard')->with('success', 'Selamat datang Pemilik!');
+            default:
+                return redirect('/home')->with('success', 'Login berhasil!');
+        }
 
 
         // 🔹 Ambil daftar role user
@@ -103,6 +134,4 @@ class LoginController extends Controller
 
         return redirect('/')->with('success', 'Logout berhasil!');
     }
-   
-
 }

@@ -13,6 +13,6 @@ class RasHewanController extends Controller
         // Ambil data ras hewan dan relasi jenis hewan
         $rasHewan = RasHewan::with('jenisHewan')->get();
 
-        return view('pagerashewan.index', compact('rasHewan'));
+        return view('pageadmin.pagerashewan.index', compact('rasHewan'));
     }
 }

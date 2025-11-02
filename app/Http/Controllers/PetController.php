@@ -12,6 +12,14 @@ class PetController extends Controller
         // Ambil data pet dengan relasi ke ras hewan dan pemilik
         $pet = Pet::with(['rasHewan', 'pemilik'])->get();
 
-        return view('pagepet.index', compact('pet'));
+        return view('pageadmin.pagepet.index', compact('pet'));
+    }
+
+    public function petResepsionis()
+    {
+        // Ambil data pet dengan relasi ke ras hewan dan pemilik
+        $pet = Pet::with(['rasHewan', 'pemilik'])->get();
+
+        return view('pageresepsionis.pagepet.index', compact('pet'));
     }
 }

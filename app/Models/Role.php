@@ -13,16 +13,17 @@ class Role extends Model
     protected $fillable = ['nama_role'];
 
     // Relasi ke RoleUser (satu role bisa punya banyak user di pivot)
-    // public function roleUser()
-    // {
-    //     return $this->hasMany(RoleUser::class, 'idrole', 'idrole');
-    // }
+    public function roleUser()
+    {
+        return $this->hasMany(RoleUser::class, 'idrole', 'idrole');
+    }
 
     
 
     //many to many
     public function users()
     {
-        return $this->belongsToMany(User::class, 'role_user', 'idrole', 'iduser');
+        return $this->belongsToMany(User::class, 'role_user', 'idrole', 'iduser')
+        ->withPivot('status');
     }
 }

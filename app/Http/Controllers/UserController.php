@@ -12,6 +12,6 @@ class UserController extends Controller
         // Ambil semua user dengan role-nya
         $users = User::with('roles')->get();
 
-        return view('pageuser.index', compact('users'));
+        return view('pageadmin.pageuser.index', compact('users'));
     }
 }

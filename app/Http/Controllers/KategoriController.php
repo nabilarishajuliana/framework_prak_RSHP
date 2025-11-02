@@ -10,6 +10,6 @@ class KategoriController extends Controller
      public function index()
     {
         $kategori = Kategori::all();
-        return view('pagekategori.index', compact('kategori'));
+        return view('pageadmin.pagekategori.index', compact('kategori'));
     }
 }

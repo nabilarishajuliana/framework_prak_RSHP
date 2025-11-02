@@ -12,6 +12,6 @@ class KodeTindakanTerapiController extends Controller
         // Ambil semua data beserta relasi kategori dan kategori klinis
         $kodeTindakan = KodeTindakanTerapi::with(['kategori', 'kategoriKlinis'])->get();
 
-        return view('pagekodetindakan.index', compact('kodeTindakan'));
+        return view('pageadmin.pagekodetindakan.index', compact('kodeTindakan'));
     }
 }

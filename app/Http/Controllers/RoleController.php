@@ -12,6 +12,6 @@ class RoleController extends Controller
         // Ambil semua role + relasi ke role_user
         $roles = Role::with('users')->get();
 
-        return view('pagerole.index', compact('roles'));
+        return view('pageadmin.pagerole.index', compact('roles'));
     }
 }
