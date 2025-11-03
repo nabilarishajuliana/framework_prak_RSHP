@@ -39,7 +39,7 @@ class isDokter
         if ($userRole === 2) {
             return $next($request);
         } else {
-            return back()->with(403, 'Access denied. Only Administrator can access this page.');
+            return back()->with(403, 'Access denied. Only dokter can access this page.');
             // abort(403, message: 'Access denied. Only Administrator can access this page.');
 
         }

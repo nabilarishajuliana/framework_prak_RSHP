@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class isResepsionis
+class isPemilik
 {
     /**
      * Handle an incoming request.
@@ -16,30 +16,16 @@ class isResepsionis
      */
     public function handle(Request $request, Closure $next): Response
     {
-          if (!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route("login");
 
-
-
-
-            /** @var \App\Models\User $user */
-            // $user = Auth::user();
-
-            // // Cek apakah user punya role 'Administrator' yang aktif (status = 1)
-            // if ($user->roles()
-            //     ->wherePivot('status', 1)
-            //     ->whereHas('role', fn($q) => $q->where('nama_role', 'Administrator'))
-            //     ->exists()
-            // ) {
-            //     return $next($request);
-            // }
         }
         $userRole = session('user_role');
 
-        if ($userRole === 4) {
+        if ($userRole === 5) {
             return $next($request);
         } else {
-            return back()->with(403, 'Access denied. Only resepsionis can access this page.');
+            return back()->with(403, 'Access denied. Only pemilik can access this page.');
             // abort(403, message: 'Access denied. Only Administrator can access this page.');
 
         }

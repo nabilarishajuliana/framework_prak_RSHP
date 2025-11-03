@@ -39,7 +39,7 @@ class isPerawat
         if ($userRole === 3) {
             return $next($request);
         } else {
-            return back()->with(403, 'Access denied. Only Administrator can access this page.');
+            return back()->with(403, 'Access denied. Only perawat can access this page.');
             // abort(403, message: 'Access denied. Only Administrator can access this page.');
 
         }

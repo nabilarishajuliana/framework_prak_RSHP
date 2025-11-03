@@ -11,7 +11,7 @@
             <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
                 ← Kembali
             </a>
-            <a href="" class="btn btn-primary">
+            <a href="{{ route('admin.jenis.hewan.create') }}" class="btn btn-primary">
                 + Tambah Jenis
             </a>
         </div>
@@ -41,8 +41,8 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="" class="btn btn-sm btn-warning">Edit</a>
-                                    <form action="" method="POST" class="d-inline">
+                                    <a href="{{ route('admin.jenis.hewan.edit', $j->idjenis_hewan) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    <form action="{{ route('admin.jenis.hewan.destroy', $j->idjenis_hewan) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" onclick="return confirm('Yakin ingin menghapus data ini?')" class="btn btn-sm btn-danger">Hapus</button>

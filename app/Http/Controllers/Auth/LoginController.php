@@ -77,8 +77,8 @@ class LoginController extends Controller
             'user_id' => $user->iduser,
             'user_name' => $user->nama,
             'user_email' => $user->email,
-            'user_role'      => $activeRole->idrole ?? 'user', // idrole dari tabel role
-            'user_role_name' => $activeRole->nama_role ?? 'User', // nama_role dari tabel role
+            'user_role'      => $activeRole->idrole ?? 5, // idrole dari tabel role
+            'user_role_name' => $activeRole->nama_role ?? 'pemilik', // nama_role dari tabel role
             'user_status'    => $activeRole->pivot->status ?? 1, // status dari tabel pivot role_user
             'idrole_user'    => $activeRole->pivot->idrole_user ?? null, // id dari tabel pivot role_user
 
@@ -93,21 +93,22 @@ class LoginController extends Controller
         // }
 
         // 🔹 Redirect berdasarkan role
-        $idrole = $activeRole->idrole ;
+        $idrole = session('user_role');
 
         switch ($idrole) {
             case '1':
                 return redirect()->route('admin.dashboard')-> with('success', 'Selamat datang Administrator!');
             case '2':
-                return redirect('/dokter/dashboard')->with('success', 'Selamat datang Dokter!');
+                return redirect()->route('dokter.dashboard')->with('success', 'Selamat datang Dokter!');
             case '3':
-                return redirect('/perawat/dashboard')->with('success', 'Selamat datang Perawat!');
+                return redirect()->route('perawat.dashboard')->with('success', 'Selamat datang Perawat!');
             case '4':
                 return redirect()->route('resepsionis.dashboard')->with('success', 'Selamat datang Resepsionis!');
+               
             // case 'Pemilik':
             //     return redirect('/pemilik/dashboard')->with('success', 'Selamat datang Pemilik!');
             default:
-                return redirect('/home')->with('success', 'Login berhasil!');
+                return redirect()->route('pemilik.dashboard')->with('success', 'Login berhasil!');
         }
 
 

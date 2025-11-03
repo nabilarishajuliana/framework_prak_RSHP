@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold text-dark">Data Rekam Medis</h2>
         <div class="d-flex gap-2">
-            <a href="{{ route('perawat.dashboard') }}" class="btn btn-outline-secondary">← Kembali</a>
+            <a href="{{ route('dokter.dashboard') }}" class="btn btn-outline-secondary">← Kembali</a>
             <a href="#" class="btn btn-primary disabled" title="Fitur tambah akan datang">+ Tambah Rekam Medis</a>
         </div>
     </div>
@@ -41,7 +41,7 @@
                                 <td>{{ $rm->dokter->user->nama ?? '-' }}</td>
                                 <td>{{ $rm->diagnosa }}</td>
                                 <td class="text-center">
-                                    <a href="{{ route('perawat.rekammedis.detail', $rm->idrekam_medis) }}" class="btn btn-sm btn-secondary">
+                                    <a href="{{ route('dokter.rekammedis.detail', $rm->idrekam_medis) }}" class="btn btn-sm btn-secondary">
                                         <i class="bi bi-eye"></i> Lihat
                                     </a>
                                 </td>

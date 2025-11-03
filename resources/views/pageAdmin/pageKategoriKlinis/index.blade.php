@@ -4,72 +4,48 @@
 
 @section('content')
 <div class="container py-4">
-    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Kategori Klinis</h2>
+        <h2 class="fw-bold text-dark">Daftar Kategori Klinis</h2>
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-                ← Kembali
-            </a>
-            <a href="" class="btn btn-primary">
-                + Tambah Kategori Klinis
-            </a>
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">← Kembali</a>
+            <a href="{{ route('admin.kategori.klinis.create') }}" class="btn btn-primary">+ Tambah Kategori Klinis</a>
         </div>
     </div>
 
-    <!-- Tabel Data -->
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
     <div class="card shadow-sm border-0">
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead class="table-light">
+            <table class="table table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>No</th>
+                        <!-- <th>ID</th> -->
+                        <th>Nama Kategori Klinis</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($kategoriKlinis as $index => $k)
                         <tr>
-                            <th>No</th>
-                            <!-- <th>ID</th> -->
-                            <th>Nama Kategori Klinis</th>
-                            <th class="text-center">Aksi</th>
+                            <td>{{ $index + 1 }}</td>
+                            <!-- <td>{{ $k->idkategori_klinis }}</td> -->
+                            <td><span class="badge bg-info text-dark">{{ $k->nama_kategori_klinis }}</span></td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.kategori.klinis.edit', $k->idkategori_klinis) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="{{ route('admin.kategori.klinis.destroy', $k->idkategori_klinis) }}" method="POST" class="d-inline">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hapus kategori klinis ini?')">Hapus</button>
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($kategoriKlinis as $index => $kk)
-                            <tr>
-                                 <td>{{ $index + 1 }}</td>
-                                <!-- <td>{{ $kk->idkategori_klinis }}</td> -->
-                                <td>
-                                    <span class="badge bg-primary">
-                                        {{ $kk->nama_kategori_klinis }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <a href="" 
-                                       class="btn btn-sm btn-warning">Edit</a>
-
-                                    <form action="" 
-                                          method="POST" 
-                                          class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                onclick="return confirm('Yakin ingin menghapus data ini?')" 
-                                                class="btn btn-sm btn-danger">
-                                            Hapus
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="text-center text-muted">Belum ada data kategori klinis.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Footer Info -->
-            <div class="mt-3 text-muted small">
-                Total data: {{ $kategoriKlinis->count() }}
-            </div>
+                    @empty
+                        <tr><td colspan="5" class="text-center text-muted">Belum ada kategori klinis.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
