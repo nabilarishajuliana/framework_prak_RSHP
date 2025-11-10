@@ -4,17 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\JenisHewan;
+use Illuminate\Support\Facades\DB; // ✅ pakai Query Builder, bukan Eloquent
 
 
 class JenisHewanController extends Controller
 {
     public function index()
     {
-        // Ambil semua data dari tabel jenis_hewan
-        $jenisHewan = JenisHewan::all();
+                // Ambil semua data dari tabel jenis_hewan pakai query builder
+        $jenisHewan = DB::table('jenis_hewan')->select('idjenis_hewan', 'nama_jenis_hewan')->get();
 
-        // Kirim ke view
-        return view('pageadmin.pageJenisHewan.index', compact('jenisHewan'));
+        return view('pageadmin.pagejenishewan.index', compact('jenisHewan'));
+        // // Ambil semua data dari tabel jenis_hewan
+        // $jenisHewan = JenisHewan::all();
+
+        // // Kirim ke view
+        // return view('pageadmin.pageJenisHewan.index', compact('jenisHewan'));
     }
 
     /** Menampilkan form create */
@@ -25,11 +30,21 @@ class JenisHewanController extends Controller
 
      public function store(Request $request)
     {
-        // 🔒 Panggil fungsi validasi private
-        $validatedData = $this->validateJenisHewan($request);
+        // // 🔒 Panggil fungsi validasi private
+        // $validatedData = $this->validateJenisHewan($request);
 
-        // ✨ Simpan data dengan nama yang sudah diformat dari helper
-        JenisHewan::create([
+        // // ✨ Simpan data dengan nama yang sudah diformat dari helper
+        // JenisHewan::create([
+        //     'nama_jenis_hewan' => $this->formatNamaJenisHewan($validatedData['nama_jenis_hewan']),
+        // ]);
+
+        // return redirect()->route('admin.jenis.hewan')
+        //                  ->with('success', 'Jenis hewan berhasil ditambahkan!');
+
+         $validatedData = $this->validateJenisHewan($request);
+
+        // Insert data pakai Query Builder
+        DB::table('jenis_hewan')->insert([
             'nama_jenis_hewan' => $this->formatNamaJenisHewan($validatedData['nama_jenis_hewan']),
         ]);
 
