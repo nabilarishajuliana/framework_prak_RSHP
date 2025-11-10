@@ -74,6 +74,29 @@ class User extends Authenticatable
     {
         // belongsToMany( ModelTujuan, nama_tabel_pivot, fk_di_tabel_ini, fk_di_tabel_tujuan )
         return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole')
-                    ->withPivot('status');
+            ->withPivot('status');
+    }
+
+    public function setActiveRole($roleId)
+{
+    // Nonaktifkan semua role aktif sebelumnya
+    $this->roles()->update(['status' => 0]);
+
+    // Cek apakah user sudah punya role tersebut
+    $existing = $this->roles()->where('role.idrole', $roleId)->first();
+
+    if ($existing) {
+        // Kalau sudah punya → update pivot status ke aktif
+        $this->roles()->updateExistingPivot($roleId, ['status' => 1]);
+    } else {
+        // Kalau belum punya → attach role baru & aktifkan
+        $this->roles()->attach($roleId, ['status' => 1]);
+    }
+}
+
+
+    public function activeRole()
+    {
+        return $this->roles()->wherePivot('status', 1)->first();
     }
 }

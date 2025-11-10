@@ -43,7 +43,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/role', [RoleController::class, 'index'])->name('admin.role');
     Route::get('/pemilik', [PemilikController::class, 'index'])->name('admin.pemilik');
     Route::get('/pet', [PetController::class, 'index'])->name('admin.pet');
-    
+
     //JENIS HEWAN
     Route::get('/jenis-hewan', [JenisHewanController::class, 'index'])->name('admin.jenis.hewan');
     Route::get('/jenis-hewan/create', [App\Http\Controllers\JenisHewanController::class, 'create'])->name('admin.jenis.hewan.create');
@@ -59,7 +59,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/ras-hewan/{id}/edit', [RasHewanController::class, 'edit'])->name('admin.ras.hewan.edit');
     Route::put('/ras-hewan/{id}', [RasHewanController::class, 'update'])->name('admin.ras.hewan.update');
     Route::delete('/ras-hewan/{id}', [RasHewanController::class, 'destroy'])->name('admin.ras.hewan.destroy');
-    
+
     //KATEGORI
     Route::get('/kategori', [KategoriController::class, 'index'])->name('admin.kategori');
     Route::get('/kategori/create', [KategoriController::class, 'create'])->name('admin.kategori.create');
@@ -83,6 +83,35 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/kode-tindakan/{id}/edit', [KodeTindakanTerapiController::class, 'edit'])->name('admin.kode.tindakan.edit');
     Route::put('/kode-tindakan/{id}', [KodeTindakanTerapiController::class, 'update'])->name('admin.kode.tindakan.update');
     Route::delete('/kode-tindakan/{id}', [KodeTindakanTerapiController::class, 'destroy'])->name('admin.kode.tindakan.destroy');
+
+    //PEMILIK
+    Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
+        Route::get('/pemilik', [PemilikController::class, 'index'])->name('admin.pemilik');
+        Route::get('/pemilik/create', [PemilikController::class, 'create'])->name('admin.pemilik.create');
+        Route::post('/pemilik', [PemilikController::class, 'store'])->name('admin.pemilik.store');
+        Route::get('/pemilik/{id}/edit', [PemilikController::class, 'edit'])->name('admin.pemilik.edit');
+        Route::put('/pemilik/{id}', [PemilikController::class, 'update'])->name('admin.pemilik.update');
+        Route::delete('/pemilik/{id}', [PemilikController::class, 'destroy'])->name('admin.pemilik.destroy');
+    });
+
+    // ROLE
+    Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
+        Route::get('/role', [RoleController::class, 'index'])->name('admin.role');
+        Route::get('/role/create', [RoleController::class, 'create'])->name('admin.role.create');
+        Route::post('/role', [RoleController::class, 'store'])->name('admin.role.store');
+        Route::get('/role/{id}/edit', [RoleController::class, 'edit'])->name('admin.role.edit');
+        Route::put('/role/{id}', [RoleController::class, 'update'])->name('admin.role.update');
+        Route::delete('/role/{id}', [RoleController::class, 'destroy'])->name('admin.role.destroy');
+
+        //USER
+        Route::get('/user', [UserController::class, 'index'])->name('admin.user');
+        Route::get('/user/create', [UserController::class, 'create'])->name('admin.user.create');
+        Route::post('/user/store', [UserController::class, 'store'])->name('admin.user.store');
+        Route::get('/user/{id}/edit', [UserController::class, 'edit'])->name('admin.user.edit');
+        Route::put('/user/{id}/update', [UserController::class, 'update'])->name('admin.user.update');
+        Route::delete('/user/{id}/delete', [UserController::class, 'destroy'])->name('admin.user.destroy');
+        Route::put('/user/{id}/switch-role', [UserController::class, 'switchRole'])->name('admin.user.switchRole');
+    });
 });
 
 Route::middleware(['auth', 'isResepsionis'])->prefix('resepsionis')->group(function () {
@@ -106,13 +135,11 @@ Route::middleware(['auth', 'isDokter'])->prefix('dokter')->group(function () {
         ->name('dokter.rekammedis');
     Route::get('/rekam-medis/{id}', [App\Http\Controllers\RekamMedisController::class, 'show'])
         ->name('dokter.rekammedis.detail');
-    
-
 });
 
 Route::middleware(['auth', 'isPerawat'])->prefix('perawat')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\dashboardPerawatController::class, 'index'])->name('perawat.dashboard');
-     Route::get('/rekam-medis', [App\Http\Controllers\RekamMedisController::class, 'indexPerawat'])->name('perawat.rekammedis');
+    Route::get('/rekam-medis', [App\Http\Controllers\RekamMedisController::class, 'indexPerawat'])->name('perawat.rekammedis');
     Route::get('/rekam-medis/{id}', [App\Http\Controllers\RekamMedisController::class, 'showPerawat'])->name('perawat.rekammedis.detail');
     // Data Master
 
@@ -123,7 +150,7 @@ Route::middleware(['auth', 'isPerawat'])->prefix('perawat')->group(function () {
 
 Route::middleware(['auth', 'isPemilik'])->prefix('pemilik')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\dashboardPemilikController::class, 'index'])->name('pemilik.dashboard');
-   
+
 
     // Route::get('/pemilik', [PemilikController::class, 'pemilikResepsionis'])->name('resepsionis.pemilik');
     // Route::get('/pet', [PetController::class, 'petResepsionis'])->name('resepsionis.pet');
