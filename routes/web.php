@@ -39,10 +39,10 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\dashboardAdmin::class, 'index'])->name('admin.dashboard');
 
     // Data Master
-    Route::get('/user', [UserController::class, 'index'])->name('admin.user');
-    Route::get('/role', [RoleController::class, 'index'])->name('admin.role');
-    Route::get('/pemilik', [PemilikController::class, 'index'])->name('admin.pemilik');
-    Route::get('/pet', [PetController::class, 'index'])->name('admin.pet');
+    // Route::get('/user', [UserController::class, 'index'])->name('admin.user');
+    // Route::get(uri: '/role', [RoleController::class, 'index'])->name('admin.role');
+    // Route::get('/pemilik', [PemilikController::class, 'index'])->name('admin.pemilik');
+    // Route::get('/pet', [PetController::class, 'index'])->name('admin.pet');
 
     //JENIS HEWAN
     Route::get('/jenis-hewan', [JenisHewanController::class, 'index'])->name('admin.jenis.hewan');
@@ -85,17 +85,15 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
     Route::delete('/kode-tindakan/{id}', [KodeTindakanTerapiController::class, 'destroy'])->name('admin.kode.tindakan.destroy');
 
     //PEMILIK
-    Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
         Route::get('/pemilik', [PemilikController::class, 'index'])->name('admin.pemilik');
         Route::get('/pemilik/create', [PemilikController::class, 'create'])->name('admin.pemilik.create');
         Route::post('/pemilik', [PemilikController::class, 'store'])->name('admin.pemilik.store');
         Route::get('/pemilik/{id}/edit', [PemilikController::class, 'edit'])->name('admin.pemilik.edit');
         Route::put('/pemilik/{id}', [PemilikController::class, 'update'])->name('admin.pemilik.update');
         Route::delete('/pemilik/{id}', [PemilikController::class, 'destroy'])->name('admin.pemilik.destroy');
-    });
+
 
     // ROLE
-    Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
         Route::get('/role', [RoleController::class, 'index'])->name('admin.role');
         Route::get('/role/create', [RoleController::class, 'create'])->name('admin.role.create');
         Route::post('/role', [RoleController::class, 'store'])->name('admin.role.store');
@@ -111,7 +109,16 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
         Route::put('/user/{id}/update', [UserController::class, 'update'])->name('admin.user.update');
         Route::delete('/user/{id}/delete', [UserController::class, 'destroy'])->name('admin.user.destroy');
         Route::put('/user/{id}/switch-role', [UserController::class, 'switchRole'])->name('admin.user.switchRole');
-    });
+
+        //PET
+    Route::get('/pet', [App\Http\Controllers\PetController::class, 'index'])->name('admin.pet');
+    Route::get('/pet/create', [App\Http\Controllers\PetController::class, 'create'])->name('admin.pet.create');
+    Route::post('/pet/store', [App\Http\Controllers\PetController::class, 'store'])->name('admin.pet.store');
+    Route::get('/pet/{id}/edit', [App\Http\Controllers\PetController::class, 'edit'])->name('admin.pet.edit');
+    Route::put('/pet/{id}', [App\Http\Controllers\PetController::class, 'update'])->name('admin.pet.update');
+    Route::delete('/pet/{id}', [App\Http\Controllers\PetController::class, 'destroy'])->name('admin.pet.destroy');
+
+
 });
 
 Route::middleware(['auth', 'isResepsionis'])->prefix('resepsionis')->group(function () {
