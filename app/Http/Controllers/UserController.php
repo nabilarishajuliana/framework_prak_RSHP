@@ -8,50 +8,48 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\QueryException;
 
-
-
 class UserController extends Controller
 {
-     public function index()
+    /** 🔹 Tampilkan semua user */
+    public function index()
     {
-        // Ambil semua user dengan role-nya
-        // $users = User::with('roles')->get();
-
-        // return view('pageadmin.pageuser.index', compact('users'));
-
-         $users = User::with('roles')->get();
+        $users = User::with(['roles', 'pemilik'])->get();
         $roles = Role::all();
-
         return view('pageadmin.pageuser.index', compact('users', 'roles'));
     }
-    
-   /** Form create */
+
+    /** 🔹 Form create user */
     public function create()
     {
         $roles = Role::all();
         return view('pageadmin.pageuser.create', compact('roles'));
     }
 
-    /** Simpan user baru */
+    /** 🔹 Simpan user baru + role */
     public function store(Request $request)
     {
         $validated = $this->validateUser($request);
 
-        $user = User::create([
-            'nama' => ucwords(trim($validated['nama'])),
-            'email' => strtolower(trim($validated['email'])),
-            'password' => Hash::make($validated['password']),
-        ]);
+        try {
+            // Simpan ke tabel user
+            $user = User::create([
+                'nama' => ucwords(trim($validated['nama'])),
+                'email' => strtolower(trim($validated['email'])),
+                'password' => Hash::make($validated['password']),
+            ]);
 
-        // assign role default kalau diisi
-        if ($request->has('role')) {
-            $user->roles()->attach($request->role, ['status' => 1]);
+            // Kalau ada role dipilih → masuk ke pivot role_user
+            if ($request->filled('role')) {
+                $user->roles()->attach($request->role, ['status' => 1]);
+            }
+
+            return redirect()->route('admin.user')->with('success', 'User baru berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.user')->with('error', 'Terjadi kesalahan saat menambahkan user.');
         }
-
-        return redirect()->route('admin.user')->with('success', 'User baru berhasil ditambahkan!');
     }
 
-    /** Edit user */
+    /** 🔹 Form edit user */
     public function edit($id)
     {
         $user = User::with('roles')->findOrFail($id);
@@ -59,11 +57,11 @@ class UserController extends Controller
         return view('pageadmin.pageuser.edit', compact('user', 'roles'));
     }
 
-    /** Update data user */
+    /** 🔹 Update data user */
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
         $validated = $this->validateUserUpdate($request, $id);
+        $user = User::findOrFail($id);
 
         $user->update([
             'nama' => ucwords(trim($validated['nama'])),
@@ -76,24 +74,27 @@ class UserController extends Controller
         return redirect()->route('admin.user')->with('success', 'Data user berhasil diperbarui!');
     }
 
-    /** Hapus user */
+    /** 🔹 Hapus user */
     public function destroy($id)
-{
-    try {
-        $user = User::findOrFail($id);
-        $user->roles()->detach();
-        if ($user->pemilik) $user->pemilik()->delete();
-        $user->delete();
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->roles()->detach();
 
-        return redirect()->route('admin.user')->with('success', 'User berhasil dihapus!');
-    } catch (QueryException $e) {
-        return redirect()->route('admin.user')
-            ->with('error', 'Gagal menghapus user. Pastikan user tidak masih terhubung ke data lain.');
+            if ($user->pemilik) {
+                $user->pemilik()->delete();
+            }
+
+            $user->delete();
+
+            return redirect()->route('admin.user')->with('success', 'User berhasil dihapus!');
+        } catch (QueryException $e) {
+            return redirect()->route('admin.user')
+                ->with('error', 'Gagal menghapus user. Pastikan user tidak terhubung dengan data lain.');
+        }
     }
-}
 
-
-    /** Ganti atau tambahkan role aktif */
+    /** 🔹 Ganti role aktif */
     public function switchRole(Request $request, $id)
     {
         $request->validate([
@@ -109,7 +110,7 @@ class UserController extends Controller
     }
 
     /* ===================================================
-     * 🔒 PRIVATE VALIDATION & HELPER
+     * 🔒 VALIDATION
      * =================================================== */
 
     private function validateUser(Request $request): array
@@ -132,9 +133,6 @@ class UserController extends Controller
             'nama' => 'required|string|max:100',
             'email' => 'required|email|unique:user,email,' . $id . ',iduser',
             'password' => 'nullable|min:5',
-        ], [
-            'nama.required' => 'Nama wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
         ]);
     }
 }

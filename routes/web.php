@@ -110,6 +110,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
         Route::delete('/user/{id}/delete', [UserController::class, 'destroy'])->name('admin.user.destroy');
         Route::put('/user/{id}/switch-role', [UserController::class, 'switchRole'])->name('admin.user.switchRole');
 
+        
         //PET
     Route::get('/pet', [App\Http\Controllers\PetController::class, 'index'])->name('admin.pet');
     Route::get('/pet/create', [App\Http\Controllers\PetController::class, 'create'])->name('admin.pet.create');

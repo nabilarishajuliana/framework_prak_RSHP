@@ -2,49 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    // protected $fillable = [
-    //     'name',
-    //     'email',
-    //     'password',
-    // ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    // protected function casts(): array
-    // {
-    //     return [
-    //         'email_verified_at' => 'datetime',
-    //         'password' => 'hashed',
-    //     ];
-    // }
 
     protected $table = 'user';
     protected $primaryKey = 'iduser';
@@ -55,48 +19,48 @@ class User extends Authenticatable
         'email',
         'password',
         'no_telp',
-        'idrole'
     ];
 
-    //one to one
+    /** 🔹 Relasi ke tabel Pemilik */
     public function pemilik()
     {
         return $this->hasOne(Pemilik::class, 'iduser', 'iduser');
     }
 
+    /** 🔹 Relasi ke RoleUser pivot */
     public function roleUser()
     {
         return $this->hasMany(RoleUser::class, 'iduser', 'iduser');
     }
 
-    //many to many
+    /** 🔹 Relasi Many to Many ke Role */
     public function roles()
     {
-        // belongsToMany( ModelTujuan, nama_tabel_pivot, fk_di_tabel_ini, fk_di_tabel_tujuan )
         return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole')
-            ->withPivot('status');
+                    ->withPivot('status');
     }
 
-    public function setActiveRole($roleId)
-{
-    // Nonaktifkan semua role aktif sebelumnya
-    $this->roles()->update(['status' => 0]);
-
-    // Cek apakah user sudah punya role tersebut
-    $existing = $this->roles()->where('role.idrole', $roleId)->first();
-
-    if ($existing) {
-        // Kalau sudah punya → update pivot status ke aktif
-        $this->roles()->updateExistingPivot($roleId, ['status' => 1]);
-    } else {
-        // Kalau belum punya → attach role baru & aktifkan
-        $this->roles()->attach($roleId, ['status' => 1]);
-    }
-}
-
-
+    /** 🔹 Ambil role aktif */
     public function activeRole()
     {
         return $this->roles()->wherePivot('status', 1)->first();
+    }
+
+    /** 🔹 Ganti atau set role aktif */
+    public function setActiveRole($roleId)
+    {
+        // Nonaktifkan semua role aktif sebelumnya
+        $this->roles()->update(['status' => 0]);
+
+        // Cek apakah user sudah punya role tersebut
+        $existing = $this->roles()->where('role.idrole', $roleId)->first();
+
+        if ($existing) {
+            // Kalau sudah punya → update pivot status ke aktif
+            $this->roles()->updateExistingPivot($roleId, ['status' => 1]);
+        } else {
+            // Kalau belum punya → attach role baru & aktifkan
+            $this->roles()->attach($roleId, ['status' => 1]);
+        }
     }
 }
