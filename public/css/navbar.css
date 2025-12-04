@@ -1,0 +1,76 @@
+/* =============================
+   RSHP NAVBAR STYLE
+   ============================= */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #0077b6, #00b4d8);
+    color: white;
+    padding: 15px 80px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 25px;
+}
+
+nav ul li {
+    display: inline-block;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    transition: 0.3s ease;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+    color: #ffe082;
+}
+
+/* Efek underline lembut saat aktif */
+nav ul li a.active::after,
+nav ul li a:hover::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #ffe082;
+    border-radius: 2px;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        padding: 15px 20px;
+        text-align: center;
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+}
