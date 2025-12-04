@@ -100,6 +100,14 @@ function isRole($roleName)
         <li class="nav-item"><a href="{{ route('perawat.rekammedis') }}" class="nav-link"><i class="bi bi-people"></i>
             <p>Rekam Medis</p>
           </a></li>
+          <li class="nav-item"><a href="{{ route('perawat.dataPasien') }}" class="nav-link"><i class="bi bi-people"></i>
+            <p>Data Pasien</p>
+          </a></li>
+          <li class="nav-item"><a href="{{ route('perawat.profile') }}" class="nav-link"><i class="bi bi-person-badge"></i>
+            <p>Profil Saya</p>
+          </a></li>
+
+
 
         @endif
 

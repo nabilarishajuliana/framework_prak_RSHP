@@ -41,4 +41,11 @@ class dashboardPerawatController extends Controller
             'totalPet'
         ));
     }
+
+    public function coba()
+    {
+        
+
+        return view('pageperawat.coba' );
+    }
 }

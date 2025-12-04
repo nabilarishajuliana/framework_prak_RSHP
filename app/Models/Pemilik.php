@@ -36,4 +36,15 @@ class Pemilik extends Model
     {
         return $this->belongsTo(User::class, 'iduser', 'iduser');
     }
+
+    protected static function booted()
+{
+    static::deleting(function ($pemilik) {
+
+        if ($pemilik->pet()->whereNull('deleted_at')->exists()) {
+            throw new \Exception("Pemilik tidak bisa dihapus karena masih memiliki Pet.");
+        }
+    });
+}
+
 }

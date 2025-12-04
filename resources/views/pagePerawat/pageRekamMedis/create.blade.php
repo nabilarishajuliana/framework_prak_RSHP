@@ -17,15 +17,15 @@
   <div class="container-fluid">
 
     @if ($errors->any())
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Terjadi kesalahan:</strong>
-        <ul class="mb-0">
-          @foreach ($errors->all() as $err)
-            <li>{{ $err }}</li>
-          @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Terjadi kesalahan:</strong>
+      <ul class="mb-0">
+        @foreach ($errors->all() as $err)
+        <li>{{ $err }}</li>
+        @endforeach
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
     @endif
 
     <div class="card shadow-sm border-0">
@@ -39,13 +39,16 @@
           <div class="mb-3">
             <label class="form-label">Antrian Hari Ini</label>
             <select name="idreservasi" class="form-select" required>
-              <option value="">-- Pilih Antrian --</option>
-              @foreach ($antrian as $a)
-                <option value="{{ $a->idreservasi_dokter }}">
-                  No {{ $a->no_urut }} — {{ $a->pet->nama }} ({{ $a->pet->pemilik->user->nama }})
-                </option>
-              @endforeach
-            </select>
+    <option value="">-- Pilih Antrian --</option>
+
+    @foreach ($antrian as $a)
+    <option value="{{ $a->idreservasi_dokter }}"
+      {{ isset($selectedReservasi) && $selectedReservasi->idreservasi_dokter == $a->idreservasi_dokter ? 'selected' : '' }}>
+      No {{ $a->no_urut }} — {{ $a->pet->nama }} ({{ $a->pet->pemilik->user->nama }})
+    </option>
+    @endforeach
+</select>
+
           </div>
 
           {{-- ===================== Dokter Pemeriksa ===================== --}}
@@ -55,9 +58,9 @@
             <select name="dokter_pemeriksa" class="form-select" required>
               <option value="">-- Pilih Dokter --</option>
               @foreach ($dokter as $d)
-                <option value="{{ $d->idrole_user }}">
-                  {{ $d->user->nama }}
-                </option>
+              <option value="{{ $d->idrole_user }}">
+                {{ $d->user->nama }}
+              </option>
               @endforeach
             </select>
           </div>
@@ -81,26 +84,124 @@
           </div>
 
           {{-- ===================== Tindakan Terapi ===================== --}}
-          <h5 class="fw-semibold text-primary mt-4 mb-3">Tindakan Terapi Pertama</h5>
+          <h5 class="fw-semibold text-primary mt-4 mb-3">Tindakan Terapi</h5>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Kode Tindakan</label>
-              <select name="idkode_tindakan_terapi" class="form-select" required>
-                <option value="">-- Pilih Tindakan --</option>
-                @foreach ($tindakan as $t)
+          <div id="tindakan-wrapper">
+
+            {{-- ITEM PERTAMA --}}
+            <div class="row tindakan-item mb-3">
+              <div class="col-md-5">
+                <label class="form-label">Kode Tindakan</label>
+                <select name="idkode_tindakan_terapi[]" class="form-select tindakan-select" required>
+                  <option value="">-- Pilih Tindakan --</option>
+                  @foreach ($tindakan as $t)
                   <option value="{{ $t->idkode_tindakan_terapi }}">
-                    {{ $t->kode_tindakan }} — {{ $t->nama_tindakan }}
+                    {{ $t->kode }} — {{ $t->deskripsi_tindakan_terapi }}
                   </option>
-                @endforeach
-              </select>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="col-md-5">
+                <label class="form-label">Detail Tindakan</label>
+                <input type="text" name="detail[]" class="form-control" required>
+              </div>
+
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-success w-100 add-tindakan">
+                  + Tambah
+                </button>
+              </div>
             </div>
 
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Detail Tindakan</label>
-              <input type="text" name="detail" class="form-control" required>
-            </div>
           </div>
+
+
+          {{-- TEMPLATE BARU --}}
+          <template id="tindakan-template">
+            <div class="row tindakan-item mb-3">
+              <div class="col-md-5">
+                <select name="idkode_tindakan_terapi[]" class="form-select tindakan-select" required>
+                  <option value="">-- Pilih Tindakan --</option>
+                  @foreach ($tindakan as $t)
+                  <option value="{{ $t->idkode_tindakan_terapi }}">
+                    {{ $t->kode }} — {{ $t->deskripsi_tindakan_terapi }}
+                  </option>
+                  @endforeach
+                </select>
+              </div>
+
+              <div class="col-md-5">
+                <input type="text" name="detail[]" class="form-control" required>
+              </div>
+
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger w-100 remove-tindakan">
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </template>
+
+
+          <script>
+            // ⛔ Ambil semua ID yang sudah dipilih
+            function getSelectedTindakan() {
+              let selected = [];
+              document.querySelectorAll('.tindakan-select').forEach(s => {
+                if (s.value) selected.push(s.value);
+              });
+              return selected;
+            }
+
+            // 🔄 Refresh semua dropdown agar tidak menampilkan kode yang sudah dipilih
+            function refreshDropdownOptions() {
+              let selected = getSelectedTindakan();
+
+              document.querySelectorAll('.tindakan-select').forEach(select => {
+                let currentValue = select.value;
+
+                select.querySelectorAll('option').forEach(opt => {
+                  if (!opt.value) return;
+
+                  // hide options already selected by other dropdowns
+                  if (selected.includes(opt.value) && opt.value !== currentValue) {
+                    opt.hidden = true;
+                  } else {
+                    opt.hidden = false;
+                  }
+                });
+              });
+            }
+
+            // ➕ Tambah baris tindakan
+            document.addEventListener('click', function(e) {
+              if (e.target.classList.contains('add-tindakan')) {
+                let template = document.querySelector('#tindakan-template').content.cloneNode(true);
+                document.querySelector('#tindakan-wrapper').appendChild(template);
+                refreshDropdownOptions();
+              }
+            });
+
+            // ❌ Hapus baris tindakan
+            document.addEventListener('click', function(e) {
+              if (e.target.classList.contains('remove-tindakan')) {
+                e.target.closest('.tindakan-item').remove();
+                refreshDropdownOptions();
+              }
+            });
+
+            // 🔄 Update filter saat dropdown berubah
+            document.addEventListener('change', function(e) {
+              if (e.target.classList.contains('tindakan-select')) {
+                refreshDropdownOptions();
+              }
+            });
+
+            // initial cleanup
+            refreshDropdownOptions();
+          </script>
+
 
           <div class="d-flex justify-content-end gap-2 mt-4">
             <a href="{{ route('perawat.rekammedis') }}" class="btn btn-outline-secondary rounded-pill px-4">

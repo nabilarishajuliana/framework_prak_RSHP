@@ -3,18 +3,57 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RasHewan extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'ras_hewan';
     protected $primaryKey = 'idras_hewan';
     public $timestamps = false;
 
-    protected $fillable = ['nama_ras', 'idjenis_hewan'];
+    protected $dates = ['deleted_at'];
 
-    // Relasi ke Jenis Hewan
+    protected $fillable = [
+        'nama_ras',
+        'idjenis_hewan',
+        'deleted_at',
+        'deleted_by'
+    ];
+
     public function jenisHewan()
     {
         return $this->belongsTo(JenisHewan::class, 'idjenis_hewan', 'idjenis_hewan');
     }
+
+    protected static function booted()
+{
+    static::deleting(function ($ras) {
+
+        if ($ras->pet()->whereNull('deleted_at')->exists()) {
+            throw new \Exception("Tidak bisa menghapus Ras Hewan karena masih dipakai oleh Pet.");
+        }
+    });
 }
+
+}
+
+// namespace App\Models;
+
+// use Illuminate\Database\Eloquent\Model;
+
+// class RasHewan extends Model
+// {
+//     protected $table = 'ras_hewan';
+//     protected $primaryKey = 'idras_hewan';
+//     public $timestamps = false;
+
+//     protected $fillable = ['nama_ras', 'idjenis_hewan'];
+
+//     // Relasi ke Jenis Hewan
+//     public function jenisHewan()
+//     {
+//         return $this->belongsTo(JenisHewan::class, 'idjenis_hewan', 'idjenis_hewan');
+//     }
+// }

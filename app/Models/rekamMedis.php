@@ -60,4 +60,15 @@ class RekamMedis extends Model
                 }
             ]);
     }
+
+    protected static function booted()
+{
+    static::deleting(function ($rm) {
+
+        if ($rm->detail()->whereNull('deleted_at')->exists()) {
+            throw new \Exception("Tidak bisa menghapus Rekam Medis karena masih memiliki Detail rekam medis.");
+        }
+    });
+}
+
 }

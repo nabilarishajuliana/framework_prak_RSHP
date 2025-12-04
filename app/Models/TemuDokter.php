@@ -32,14 +32,30 @@ class TemuDokter extends Model
     public function pet()
     {
         return $this->belongsTo(Pet::class, 'idpet', 'idpet')
-                    ->withTrashed() // <<< FIX PENTING
-                    ->with(['pemilik.user', 'rasHewan']);
+            ->withTrashed() // <<< FIX PENTING
+            ->with(['pemilik.user', 'rasHewan']);
     }
 
     // Role user yang membuat antrian
     public function roleUser()
     {
         return $this->belongsTo(RoleUser::class, 'idrole_user', 'idrole_user')
-                    ->with('role');
+            ->with('role');
     }
+
+    public function rekamMedis()
+    {
+        return $this->hasOne(RekamMedis::class, 'idReservasi_dokter', 'idreservasi_dokter');
+    }
+
+    protected static function booted()
+{
+    static::deleting(function ($td) {
+
+        if ($td->rekamMedis()->whereNull('deleted_at')->exists()) {
+            throw new \Exception("Tidak bisa menghapus Antrian karena sudah memiliki Rekam Medis.");
+        }
+    });
+}
+
 }

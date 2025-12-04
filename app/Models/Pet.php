@@ -40,4 +40,19 @@ class Pet extends Model
     {
         return $this->hasMany(TemuDokter::class, 'idpet', 'idpet');
     }
+
+    protected static function booted()
+{
+    static::deleting(function ($pet) {
+
+        if ($pet->temuDokter()->whereNull('deleted_at')->exists()) {
+            throw new \Exception("Tidak bisa menghapus Pet karena masih memiliki antrian/temu dokter.");
+        }
+
+        if ($pet->rekamMedis()->whereNull('deleted_at')->exists()) {
+            throw new \Exception("Tidak bisa menghapus Pet karena masih memiliki rekam medis aktif.");
+        }
+    });
+}
+
 }

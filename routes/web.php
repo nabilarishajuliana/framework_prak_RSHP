@@ -239,43 +239,54 @@ Route::middleware(['auth', 'isDokter'])->prefix('dokter')->group(function () {
 });
 
 Route::middleware(['auth', 'isPerawat'])->prefix('perawat')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\dashboardPerawatController::class, 'index'])->name('perawat.dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\dashboardPerawatController::class, 'index'])
+        ->name('perawat.dashboard');
 
-    // Rekam Medis
-    Route::get('/rekam-medis', [RekamMedisController::class, 'index'])
+    // ==================== REKAM MEDIS ROUTES ====================
+    
+    // Index - List semua rekam medis
+    Route::get('/rekam-medis', [App\Http\Controllers\RekamMedisController::class, 'index'])
         ->name('perawat.rekammedis');
 
-    Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
-        ->name('perawat.rekammedis.detail');
-
-
-    Route::get('/rekam-medis/create', [RekamMedisController::class, 'create'])
+    // Create - Form tambah rekam medis baru
+    Route::get('/perawat/rekam-medis/create/{reservasi?}', [App\Http\Controllers\RekamMedisController::class, 'create'])
         ->name('perawat.rekammedis.create');
 
-    Route::post('/rekam-medis/store', [RekamMedisController::class, 'store'])
+    // Store - Simpan rekam medis baru
+    Route::post('/rekam-medis/store', [App\Http\Controllers\RekamMedisController::class, 'store'])
         ->name('perawat.rekammedis.store');
 
-
-    // Route::get('/rekam-medis/{id}', [RekamMedisController::class, 'show'])
-    //     ->name('perawat.rekammedis.detail');
-
-    Route::get('/rekam-medis/{id}/edit', [RekamMedisController::class, 'edit'])
+    // Edit - Form edit rekam medis
+    Route::get('/rekam-medis/{id}/edit', [App\Http\Controllers\RekamMedisController::class, 'edit'])
         ->name('perawat.rekammedis.edit');
 
-    Route::put('/rekam-medis/{id}/update', [RekamMedisController::class, 'update'])
+    // Update - Proses update rekam medis
+    Route::put('/rekam-medis/{id}', [App\Http\Controllers\RekamMedisController::class, 'update'])
         ->name('perawat.rekammedis.update');
 
+    // Delete - Soft delete rekam medis
+    Route::delete('/rekam-medis/{id}', [App\Http\Controllers\RekamMedisController::class, 'destroy'])
+        ->name('perawat.rekammedis.destroy');
 
-    Route::delete('/rekam-medis/delete/{id}', [RekamMedisController::class, 'destroy'])
-        ->name('perawat.rekammedis.delete');
+    // Show - Detail rekam medis
+    Route::get('/rekam-medis/{id}', [App\Http\Controllers\RekamMedisController::class, 'show'])
+        ->name('perawat.rekammedis.detail');
 
-    // Route::get('/rekam-medis', [App\Http\Controllers\RekamMedisController::class, 'indexPerawat'])->name('perawat.rekammedis');
-    // Route::get('/rekam-medis/{id}', [App\Http\Controllers\RekamMedisController::class, 'showPerawat'])->name('perawat.rekammedis.detail');
-    // Data Master
+    Route::get('/data-pasien', [App\Http\Controllers\DataPasienController::class, 'index'])
+        ->name('perawat.dataPasien');
 
-    // Route::get('/pemilik', [PemilikController::class, 'pemilikResepsionis'])->name('resepsionis.pemilik');
-    // Route::get('/pet', [PetController::class, 'petResepsionis'])->name('resepsionis.pet');
+    Route::get('/data-pasien/{id}', [App\Http\Controllers\DataPasienController::class, 'detail'])
+        ->name('perawat.dataPasien.detail');
 
+    
+    Route::get('/profile', [App\Http\Controllers\PerawatProfileController::class, 'index'])
+        ->name('perawat.profile');
+
+    Route::get('/profile/edit', [App\Http\Controllers\PerawatProfileController::class, 'edit'])
+        ->name('perawat.profile.edit');
+
+    Route::post('/profile/update', [App\Http\Controllers\PerawatProfileController::class, 'update'])
+        ->name('perawat.profile.update');
 });
 
 Route::middleware(['auth', 'isPemilik'])->prefix('pemilik')->group(function () {
