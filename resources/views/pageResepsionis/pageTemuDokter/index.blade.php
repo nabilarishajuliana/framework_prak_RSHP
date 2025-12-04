@@ -1,77 +1,100 @@
-@extends('layouts.app')
+@extends('layouts.adminlte.app')
 
 @section('title', 'Antrian Temu Dokter')
 
 @section('content')
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-dark">Antrian Temu Dokter</h2>
-            <p class="text-muted mb-0">Menampilkan antrian <b>hari ini</b>.</p>
-        </div>
-      <a href="{{ route('resepsionis.dashboard') }}" class="btn btn-outline-secondary">
-                ← Kembali
-            </a>
-        <a href="#" class="btn btn-primary disabled">+ Daftarkan Pet</a>
-    </div>
 
-    @if (session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if (session('error'))
-    <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No. Urut</th>
-                            <th>Waktu Daftar</th>
-                            <th>Nama Pet</th>
-                            <th>Pemilik</th>
-                            <th>Status</th>
-                            <th class="text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($temuDokter as $td)
-                        <tr>
-                            <td><b>{{ $td->no_urut }}</b></td>
-                            <td>{{ $td->waktu_daftar }}</td>
-                            <td><span class="badge bg-primary">{{ $td->pet->nama ?? '-' }}</span></td>
-                            <td>{{ $td->pet->pemilik->user->nama ?? '-' }}</td>
-                            <td>
-                                @php
-                                $label = $td->status === 'N' ? 'Baru' : ($td->status === 'S' ? 'Selesai' : 'Batal');
-                                $color = $td->status === 'N' ? 'secondary' : ($td->status === 'S' ? 'success' : 'danger');
-                                @endphp
-                                <span class="badge bg-{{ $color }}">{{ $label }}</span>
-                            </td>
-                            <td class="text-center">
-                                @if ($td->status !== 'S')
-                                <a href="{{ route('resepsionis.temu.dokter.status', [$td->idreservasi_dokter, 'S']) }}" class="btn btn-sm btn-success">Selesai</a>
-                                <a href="{{ route('resepsionis.temu.dokter.status', [$td->idreservasi_dokter, 'B']) }}" class="btn btn-sm btn-warning text-white">Batal</a>
-                                @endif
-                                <form action="{{ route('resepsionis.temu.dokter.delete', $td->idreservasi_dokter) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus antrian ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">Hapus</button>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">Belum ada antrian hari ini.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <p class="text-muted small mt-3">Total antrian: {{ $temuDokter->count() }}</p>
-        </div>
+<div class="app-content-header">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div>
+      <h3 class="fw-bold mb-0"><i class="bi bi-calendar-heart text-primary me-2"></i>Antrian Temu Dokter,id={{ session('idrole_user') }}</h3>
+      <p class="small text-muted mb-0">Kelola antrian temu dokter hari ini.</p>
     </div>
+    <a href="{{ route('resepsionis.temu.create') }}" class="btn btn-primary rounded-pill">+ Tambah Antrian</a>
+  </div>
 </div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    {{-- Filter --}}
+    <div class="mb-3">
+      <a href="{{ route('resepsionis.temu', ['filter' => 'today']) }}" class="btn btn-sm {{ $filter=='today'?'btn-primary':'btn-outline-primary' }}">Hari Ini</a>
+      <a href="{{ route('resepsionis.temu', ['filter' => 'all']) }}" class="btn btn-sm {{ $filter=='all'?'btn-primary':'btn-outline-primary' }}">Semua</a>
+    </div>
+
+    @if(session('success'))
+      <div class="alert alert-success auto-dismiss">{{ session('success') }}</div>
+    @endif
+
+    <div class="card shadow-sm">
+      <div class="card-body table-responsive">
+
+        <table class="table table-striped align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>No Urut</th>
+              <th>Pet</th>
+              <th>Pemilik</th>
+              <th>Waktu Daftar</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @forelse ($antrian as $i => $a)
+              <tr>
+                <td>{{ $i+1 }}</td>
+                <td><span class="badge bg-primary">{{ $a->no_urut }}</span></td>
+
+                <td>{{ $a->pet->nama }}</td>
+                <td>{{ $a->pet->pemilik->user->nama }}</td>
+
+                <td>{{ \Carbon\Carbon::parse($a->waktu_daftar)->format('d M Y H:i') }}</td>
+
+                <td>
+                  @if($a->status == 'N')
+                    <span class="badge bg-warning text-dark">Menunggu</span>
+                  @else
+                    <span class="badge bg-success">Selesai</span>
+                  @endif
+                </td>
+
+                <td>
+                  {{-- STATUS --}}
+                  @if($a->status == 'N')
+                    <a href="{{ route('resepsionis.temu.status', [$a->idreservasi_dokter, 'S']) }}"
+                       class="btn btn-success btn-sm rounded-pill">Selesai</a>
+                  @else
+                    <a href="{{ route('resepsionis.temu.status', [$a->idreservasi_dokter, 'N']) }}"
+                       class="btn btn-warning btn-sm rounded-pill">Kembalikan</a>
+                  @endif
+
+                  {{-- DELETE --}}
+                  <form action="{{ route('resepsionis.temu.destroy', $a->idreservasi_dokter) }}"
+                        method="POST" class="d-inline">
+                    @csrf @method('DELETE')
+                    <button onclick="return confirm('Hapus antrian ini?')"
+                            class="btn btn-danger btn-sm rounded-pill">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+
+              </tr>
+            @empty
+              <tr><td colspan="7" class="text-center text-muted">Tidak ada antrian.</td></tr>
+            @endforelse
+          </tbody>
+
+        </table>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
 @endsection

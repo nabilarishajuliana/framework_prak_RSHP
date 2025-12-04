@@ -3,67 +3,111 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use App\Models\TemuDokter;
-use Illuminate\Support\Facades\DB;
+use App\Models\Pet;
 
 class TemuDokterController extends Controller
 {
-        public function index()
+    function isRole($role)
     {
-        $today = now()->toDateString();
-
-        $temuDokter = TemuDokter::with(['pet.pemilik.user'])
-            ->whereDate('waktu_daftar', $today)
-            ->orderByDesc('waktu_daftar')
-            ->orderBy('no_urut')
-            ->get();
-
-        return view('pageresepsionis.pagetemudokter.index', compact('temuDokter'));
+        return strtolower(session('user_role_name')) === strtolower($role);
     }
 
+    /** ========================== INDEX ========================== */
+    public function index(Request $request)
+    {
+        $filter = $request->get('filter', 'today'); // default: today
+
+        if ($filter === 'all') {
+            $antrian = TemuDokter::with('pet')
+                ->whereNull('deleted_at')
+                ->orderBy('waktu_daftar', 'desc')
+                ->get();
+        } else {
+            // hari ini
+            $today = Carbon::today();
+
+            $antrian = TemuDokter::with('pet')
+                ->whereNull('deleted_at')
+                ->whereDate('waktu_daftar', $today)
+                ->orderBy('no_urut', 'asc')
+                ->get();
+        }
+
+        if ($this->isRole('administrator')) {
+            return view('pageadmin.pagetemudokter.index', compact('antrian', 'filter'));
+        }
+// dd(vars: $antrian);
+        return view('pageresepsionis.pagetemudokter.index', compact('antrian', 'filter'));
+    }
+
+    /** ========================== CREATE FORM ========================== */
+    public function create()
+    {
+        $pets = Pet::with(['pemilik.user'])->get();
+
+        if ($this->isRole('administrator')) {
+            return view('pageadmin.pagetemudokter.create', compact('pets'));
+        }
+
+        return view('pageresepsionis.pagetemudokter.create', compact('pets'));
+    }
+
+    /** ========================== STORE (AUTO LOGIC) ========================== */
     public function store(Request $request)
     {
         $request->validate([
-            'idpet' => 'required|integer|exists:pet,idpet',
+            'idpet' => 'required|exists:pet,idpet'
         ]);
 
-        $idrole_user = session('idrole_user');
+        // Nomor urut berdasarkan hari ini
+        $today = Carbon::today();
 
-        DB::beginTransaction();
-        try {
-            $next_no = TemuDokter::whereDate('waktu_daftar', now()->toDateString())
-                ->max('no_urut') + 1;
+        $last = TemuDokter::whereDate('waktu_daftar', $today)
+            ->whereNull('deleted_at')
+            ->max('no_urut');
 
-            TemuDokter::create([
-                'no_urut' => $next_no,
-                'waktu_daftar' => now(),
-                'status' => 'N',
-                'idpet' => $request->idpet,
-                'idrole_user' => $idrole_user,
-            ]);
+        $noUrut = $last ? $last + 1 : 1;
 
-            DB::commit();
-            return redirect()->route('resepsionis.temu.dokter')->with('success', 'Pendaftaran berhasil!');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return back()->with('error', $e->getMessage());
+        TemuDokter::create([
+            'no_urut'      => $noUrut,
+            'waktu_daftar' => Carbon::now(),
+            'status'       => 'N',
+            'idpet'        => $request->idpet,
+            'idrole_user'  => session('idrole_user'),
+        ]);
+
+        if ($this->isRole('administrator')) {
+            return redirect()->route('admin.temu')->with('success', 'Antrian berhasil ditambahkan!');
         }
+
+        return redirect()->route('resepsionis.temu')->with('success', 'Antrian berhasil ditambahkan!');
     }
 
+    /** ========================== UPDATE STATUS ========================== */
     public function updateStatus($id, $status)
     {
-        $valid = ['N', 'S', 'B'];
+        $valid = ['N', 'S'];
         if (!in_array($status, $valid)) {
-            return back()->with('error', 'Status tidak valid.');
+            return back()->with('error', 'Status tidak valid!');
         }
 
-        TemuDokter::where('idreservasi_dokter', $id)->update(['status' => $status]);
-        return back()->with('success', 'Status berhasil diperbarui.');
+        $antrian = TemuDokter::findOrFail($id);
+        $antrian->update(['status' => $status]);
+
+        return back()->with('success', 'Status antrian berhasil diperbarui!');
     }
 
+    /** ========================== DELETE (SOFT DELETE) ========================== */
     public function destroy($id)
     {
-        TemuDokter::findOrFail($id)->delete();
-        return back()->with('success', 'Antrian berhasil dihapus.');
+        $antrian = TemuDokter::findOrFail($id);
+        $antrian->deleted_by = Auth::id();
+        $antrian->save();
+        $antrian->delete();
+
+        return back()->with('success', 'Data antrian berhasil dihapus!');
     }
 }

@@ -19,12 +19,25 @@ class User extends Authenticatable
         'email',
         'password',
         'no_telp',
+        'deleted_at',
+        'deleted_by'
+
     ];
 
     /** 🔹 Relasi ke tabel Pemilik */
     public function pemilik()
     {
         return $this->hasOne(Pemilik::class, 'iduser', 'iduser');
+    }
+
+    public function Dokter()
+    {
+        return $this->hasOne(Dokter::class, 'iduser', 'iduser');
+    }
+
+    public function Perawat()
+    {
+        return $this->hasOne(Perawat::class, 'iduser', 'iduser');
     }
 
     /** 🔹 Relasi ke RoleUser pivot */
@@ -37,7 +50,8 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole')
-                    ->withPivot('status');
+                   ->withPivot(['status', 'idrole_user']);  // <<< FIX UTAMA
+
     }
 
     /** 🔹 Ambil role aktif */

@@ -1,70 +1,79 @@
-@extends('layouts.app')
+@extends('layouts.adminlte.app')
 
-@section('title', 'Data Hewan Pasien')
+@section('title', 'Data Pet')
 
 @section('content')
-<div class="container py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Data Hewan Pasien</h2>
-        <div class="d-flex gap-2">
-            <a href="{{ route('resepsionis.dashboard') }}" class="btn btn-outline-secondary">
-                ← Kembali
-            </a>
-            <a href="#" class="btn btn-primary disabled" title="Fitur belum tersedia">
-                + Tambah Hewan
-            </a>
-        </div>
-    </div>
 
-    <!-- Tabel Data -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table align-middle table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No</th>
-                            <!-- <th>ID Hewan</th> -->
-                            <th>Nama Hewan</th>
-                            <th>Tanggal Lahir</th>
-                            <th>Jenis Kelamin</th>
-                            <th>Ras Hewan</th>
-                            <th>Pemilik</th>
-                            <th class="text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($pet as $index => $p)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <!-- <td>{{ $p->idpet }}</td> -->
-                                <td><span class="badge bg-primary">{{ $p->nama }}</span></td>
-                                <td>{{ $p->tanggal_lahir ?? '-' }}</td>
-                                <td>{{ ucfirst($p->jenis_kelamin) ?? '-' }}</td>
-                                <td>{{ $p->rasHewan->nama_ras ?? '-' }}</td>
-                                <td>{{ $p->pemilik->user->nama ?? '-' }}</td>
-                                <td class="text-center">
-                                    <a href="#" class="btn btn-sm btn-warning disabled" title="Fitur belum tersedia">Edit</a>
-                                    <a href="#" class="btn btn-sm btn-danger disabled" title="Fitur belum tersedia">Hapus</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center text-muted">
-                                    Belum ada data hewan pasien.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Footer Info -->
-            <div class="mt-3 text-muted small">
-                Total data: {{ $pet->count() }}
-            </div>
-        </div>
+<div class="app-content-header">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h3 class="fw-bold mb-0"><i class="bi bi-paw text-primary me-2"></i>Data Pet</h3>
+        <p class="text-muted small mb-0">Kelola data hewan peliharaan.</p>
+      </div>
+      <div>
+        <a href="{{ route('resepsionis.pet.create') }}" class="btn btn-primary btn-sm rounded-pill px-3">
+          + Tambah Pet
+        </a>
+      </div>
     </div>
+  </div>
 </div>
+
+<div class="app-content">
+  <div class="container-fluid">
+
+    @if (session('success'))
+      <div class="alert alert-success auto-dismiss">{{ session('success') }}</div>
+    @endif
+
+    <div class="card shadow-sm border-0">
+      <div class="card-body table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>Jenis Kelamin</th>
+              <th>Warna</th>
+              <th>Tgl Lahir</th>
+              <th>Ras</th>
+              <th>Pemilik</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse ($pets as $i => $p)
+              <tr>
+                <td>{{ $i+1 }}</td>
+                <td class="fw-semibold">{{ $p->nama }}</td>
+                <td>{{ $p->jenis_kelamin == 'P' ? 'Betina' : 'Jantan' }}</td>
+                <td>{{ $p->warna_tanda }}</td>
+                <td>{{ $p->tanggal_lahir }}</td>
+                <td>{{ $p->rasHewan->nama_ras ?? '-' }}</td>
+                <td>{{ $p->pemilik->user->nama ?? '-' }}</td>
+                <td>
+                  <a href="{{ route('resepsionis.pet.edit', $p->idpet) }}" class="btn btn-warning btn-sm rounded-pill">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+
+                  <form action="{{ route('resepsionis.pet.destroy', $p->idpet) }}" method="POST" class="d-inline">
+                    @csrf @method('DELETE')
+                    <button onclick="return confirm('Yakin hapus pet ini?')" class="btn btn-danger btn-sm rounded-pill">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            @empty
+              <tr><td colspan="8" class="text-center text-muted">Tidak ada data pet.</td></tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 @endsection

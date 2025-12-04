@@ -3,30 +3,43 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TemuDokter extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'temu_dokter';
     protected $primaryKey = 'idreservasi_dokter';
+
     public $timestamps = false;
+
+    protected $dates = ['deleted_at', 'waktu_daftar'];
 
     protected $fillable = [
         'no_urut',
         'waktu_daftar',
         'status',
         'idpet',
-        'idrole_user'
+        'idrole_user',
+        'deleted_at',
+        'deleted_by'
     ];
 
-    // Relasi ke Pet
+    /** =============== RELASI =============== */
+
+    // Setiap temu dokter terhubung ke 1 pet
     public function pet()
     {
-        return $this->belongsTo(Pet::class, 'idpet', 'idpet')->with(['pemilik.user']);
+        return $this->belongsTo(Pet::class, 'idpet', 'idpet')
+                    ->withTrashed() // <<< FIX PENTING
+                    ->with(['pemilik.user', 'rasHewan']);
     }
 
-    // Relasi ke RoleUser (yang membuat antrian)
+    // Role user yang membuat antrian
     public function roleUser()
     {
-        return $this->belongsTo(RoleUser::class, 'idrole_user', 'idrole_user')->with(['user', 'role']);
+        return $this->belongsTo(RoleUser::class, 'idrole_user', 'idrole_user')
+                    ->with('role');
     }
 }

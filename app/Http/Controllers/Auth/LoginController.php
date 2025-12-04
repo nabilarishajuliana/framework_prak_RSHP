@@ -80,7 +80,7 @@ class LoginController extends Controller
             'user_role'      => $activeRole->idrole ?? 5, // idrole dari tabel role
             'user_role_name' => $activeRole->nama_role ?? 'pemilik', // nama_role dari tabel role
             'user_status'    => $activeRole->pivot->status ?? 1, // status dari tabel pivot role_user
-            'idrole_user'    => $activeRole->pivot->idrole_user ?? null, // id dari tabel pivot role_user
+            'idrole_user'    => $activeRole?->pivot?->idrole_user ?? 0, // id dari tabel pivot role_user
 
         ]);
 
@@ -133,6 +133,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('success', 'Logout berhasil!');
+        return redirect('/login')->with('success', 'Logout berhasil!');
     }
 }

@@ -3,22 +3,35 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pemilik extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'pemilik';
     protected $primaryKey = 'idpemilik';
     public $timestamps = false;
 
-    protected $fillable = ['alamat', 'no_wa', 'iduser'];
+    protected $dates = ['deleted_at'];
 
-    // Relasi ke tabel Pet (one to many)
+    protected $fillable = [
+        'alamat',
+        'no_wa',
+        'iduser',
+        'deleted_at',
+        'deleted_by'
+    ];
+
+    protected $hidden = ['deleted_at', 'deleted_by'];
+
+    // Relasi ke Pet
     public function pet()
     {
         return $this->hasMany(Pet::class, 'idpemilik', 'idpemilik');
     }
 
-    // Relasi ke tabel User (one to one)
+    // Relasi ke User
     public function user()
     {
         return $this->belongsTo(User::class, 'iduser', 'iduser');

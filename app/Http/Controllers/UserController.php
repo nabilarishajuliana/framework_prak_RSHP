@@ -13,7 +13,8 @@ class UserController extends Controller
     /** 🔹 Tampilkan semua user */
     public function index()
     {
-        $users = User::with(['roles', 'pemilik'])->get();
+        $users = User::with(['roles', 'pemilik'])->whereNull('deleted_at')
+            ->get();
         $roles = Role::all();
         return view('pageadmin.pageuser.index', compact('users', 'roles'));
     }
