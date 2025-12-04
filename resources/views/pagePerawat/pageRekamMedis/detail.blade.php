@@ -1,150 +1,103 @@
-@extends('layouts.app')
+@extends('layouts.adminlte.app')
 
 @section('title', 'Detail Rekam Medis')
 
 @section('content')
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Detail Rekam Medis</h2>
-        <a href="{{ route('dokter.rekammedis') }}" class="btn btn-outline-secondary">← Kembali</a>
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <h3 class="fw-bold mb-2">
+            <i class="bi bi-file-medical me-2 text-primary"></i>
+            Detail Rekam Medis
+        </h3>
+        <p class="text-muted small">
+            Informasi rekam medis lengkap beserta tindakan terapi.
+        </p>
     </div>
-
-   
-
-@section('title', 'Detail Rekam Medis - Perawat')
-
-@section('content')
-<div class="container py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h2 class="fw-bold text-dark mb-0">Detail Rekam Medis</h2>
-            <small class="text-muted">
-                Hewan: <strong>{{ $rekamMedis->temuDokter->pet->nama ?? '-' }}</strong> —
-                Pemilik: {{ $rekamMedis->temuDokter->pet->pemilik->user->nama ?? '-' }} —
-                Dokter: <strong>{{ $rekamMedis->dokter->user->nama ?? '-' }}</strong> —
-                No. Urut: #{{ $rekamMedis->temuDokter->no_urut ?? '-' }}
-            </small>
-        </div>
-        <a href="{{ route('perawat.rekammedis') }}" class="btn btn-outline-secondary">← Kembali</a>
-    </div>
-
-    <!-- Rekam Medis Header -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body">
-            <div class="mb-3">
-                <h6 class="fw-semibold text-muted">Anamnesa</h6>
-                <p class="mb-0">{{ $rekamMedis->anamnesa ?? '-' }}</p>
-            </div>
-            <div class="mb-3">
-                <h6 class="fw-semibold text-muted">Temuan Klinis</h6>
-                <p class="mb-0">{{ $rekamMedis->temuan_klinis ?? '-' }}</p>
-            </div>
-            <div class="mb-3">
-                <h6 class="fw-semibold text-muted">Diagnosa</h6>
-                <p class="mb-0">{{ $rekamMedis->diagnosa ?? '-' }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Tindakan -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white">
-            <h5 class="fw-semibold mb-0 text-dark">Detail Tindakan / Terapi</h5>
-        </div>
-        <div class="card-body">
-            @if ($details->isEmpty())
-                <p class="text-muted text-center mb-0">Belum ada detail tindakan untuk rekam medis ini.</p>
-            @else
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Kode Tindakan</th>
-                                <th>Deskripsi</th>
-                                <th>Detail</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($details as $d)
-                                <tr>
-                                    <td>{{ $d->iddetail_rekam_medis }}</td>
-                                    <td><strong>{{ $d->kodeTindakanTerapi->kode ?? '-' }}</strong></td>
-                                    <td>{{ $d->kodeTindakanTerapi->deskripsi_tindakan_terapi ?? '-' }}</td>
-                                    <td>{{ $d->detail ?? '-' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <footer class="text-center text-muted small mt-4">
-        &copy; {{ date('Y') }} Rumah Sakit Hewan | Developed by Princess Risha 👑
-    </footer>
 </div>
-@endsection
-Dokter->no_urut ?? '-' }}</strong> —
-                Dokter: <strong>{{ $rekamMedis->dokter->user->nama ?? '-' }}</strong> —
-                Daftar: {{ $rekamMedis->temuDokter->waktu_daftar ?? '-' }}
-            </p>
 
-            <div class="mb-3">
-                <h6 class="fw-semibold">Anamnesa</h6>
-                <div class="border rounded p-2 bg-light">{{ $rekamMedis->anamnesa ?? '-' }}</div>
-            </div>
+<div class="app-content">
+    <div class="container-fluid">
 
-            <div class="mb-3">
-                <h6 class="fw-semibold">Temuan Klinis</h6>
-                <div class="border rounded p-2 bg-light">{{ $rekamMedis->temuan_klinis ?? '-' }}</div>
-            </div>
+        {{-- Informasi Pasien --}}
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h5 class="fw-bold text-primary mb-3">Informasi Pasien</h5>
 
-            <div class="mb-3">
-                <h6 class="fw-semibold">Diagnosa</h6>
-                <div class="border rounded p-2 bg-light">{{ $rekamMedis->diagnosa ?? '-' }}</div>
+                @php
+                $pet = $rekam->reservasi->pet;
+                @endphp
+
+                <p><strong>Nama Hewan:</strong>
+                    @if($pet)
+                        {{ $pet->nama }}
+                        @if($pet->deleted_at)
+                            <span class="text-danger fst-italic">(Pet telah dihapus)</span>
+                        @endif
+                    @else
+                        <span class="text-danger fst-italic">Pet tidak ditemukan</span>
+                    @endif
+                </p>
+
+                <p><strong>Pemilik:</strong>
+                    {{ $pet->pemilik->user->nama ?? '-' }}
+                </p>
+
+                <p><strong>Tanggal Rekam Medis:</strong>
+                    {{ \Carbon\Carbon::parse($rekam->created_at)->format('d M Y H:i') }}
+                </p>
+
+                <p><strong>Dokter Pemeriksa:</strong>
+                    {{ $rekam->dokterPemeriksa->user->nama ?? '-' }}
+                </p>
             </div>
         </div>
+
+        {{-- Detail Rekam Medis --}}
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+
+                <h5 class="fw-bold text-primary mb-3">Data Rekam Medis</h5>
+
+                <p><strong>Anamnesa:</strong> {{ $rekam->anamnesa }}</p>
+                <p><strong>Temuan Klinis:</strong> {{ $rekam->temuan_klinis }}</p>
+                <p><strong>Diagnosa:</strong> {{ $rekam->diagnosa }}</p>
+
+                <hr>
+
+                <h5 class="fw-bold text-primary mb-3">Tindakan Terapi</h5>
+
+                <table class="table table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>No</th>
+                            <th>Kode Tindakan</th>
+                            <th>Nama Tindakan</th>
+                            <th>Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($rekam->detail as $i => $d)
+                        <tr>
+                            <td>{{ $i+1 }}</td>
+                            <td>{{ $d->kodeTindakan->kode ?? '-' }}</td>
+                            <td>{{ $d->kodeTindakan->deskripsi_tindakan_terapi ?? '-' }}</td>
+                            <td>{{ $d->detail }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted fst-italic">
+                                Belum ada tindakan terapi.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
     </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white">
-            <h5 class="fw-semibold mb-0">Detail Tindakan / Terapi</h5>
-        </div>
-        <div class="card-body">
-            @if ($rekamMedis->detailRekamMedis->isEmpty())
-                <p class="text-muted mb-0">Belum ada tindakan / terapi.</p>
-            @else
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Kode</th>
-                                <th>Deskripsi</th>
-                                <th>Detail</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($rekamMedis->detailRekamMedis as $d)
-                                <tr>
-                                    <td>{{ $d->iddetail_rekam_medis }}</td>
-                                    <td><strong>{{ $d->kodeTindakanTerapi->kode ?? '-' }}</strong></td>
-                                    <td>{{ $d->kodeTindakanTerapi->deskripsi_tindakan_terapi ?? '-' }}</td>
-                                    <td>{{ $d->detail ?? '-' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-    </div>
-
-    <footer class="text-center text-muted small mt-4">
-        &copy; {{ date('Y') }} Rumah Sakit Hewan | Developed by Princess Risha 👑
-    </footer>
 </div>
+
 @endsection
