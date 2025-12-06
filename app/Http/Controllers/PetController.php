@@ -126,4 +126,24 @@ class PetController extends Controller
             'idpemilik' => 'required|exists:pemilik,idpemilik',
         ]);
     }
+
+     public function indexPemilik()
+    {
+        $idUser = session('user_id');
+        
+        $pemilik = Pemilik::where('iduser', $idUser)->first();
+        
+        if (!$pemilik) {
+            return redirect()->route('login')
+                ->with('error', 'Data pemilik tidak ditemukan');
+        }
+        
+        $pets = Pet::with('rasHewan.jenisHewan')
+            ->where('idpemilik', $pemilik->idpemilik)
+            ->whereNull('deleted_at')
+            ->orderBy('nama', 'asc')
+            ->get();
+        
+        return view('pagePemilik.pagePet.index', compact('pemilik', 'pets'));
+    }
 }

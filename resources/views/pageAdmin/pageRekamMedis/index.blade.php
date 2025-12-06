@@ -1,6 +1,6 @@
 @extends('layouts.adminlte.app')
 
-@section('title', 'Rekam Medis')
+@section('title', 'Manajemen Rekam Medis')
 
 @section('content')
 <div class="app-content-header">
@@ -8,12 +8,12 @@
         <div>
             <h3 class="fw-bold text-dark mb-0">
                 <i class="bi bi-journal-medical text-primary me-2"></i>
-                Rekam Medis DOKTER
+                Manajemen Rekam Medis
             </h3>
-            <p class="text-muted small mb-0">Daftar seluruh rekam medis pasien.</p>
+            <p class="text-muted small mb-0">Kelola seluruh rekam medis pasien di sistem.</p>
         </div>
 
-        <a href="{{ route('dokter.rekammedis.create') }}" 
+        <a href="{{ route('admin.rekammedis.create') }}" 
            class="btn btn-primary btn-sm rounded-pill px-3">
             <i class="bi bi-plus-circle me-1"></i> Tambah Rekam Medis
         </a>
@@ -23,7 +23,7 @@
 <div class="app-content">
     <div class="container-fluid">
 
-        {{-- Alert Success --}}
+        {{-- Alert --}}
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show auto-dismiss" role="alert">
                 <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
@@ -31,7 +31,6 @@
             </div>
         @endif
 
-        {{-- Alert Error --}}
         @if(session('error'))
             <div class="alert alert-danger alert-dismissible fade show auto-dismiss" role="alert">
                 <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
@@ -43,7 +42,7 @@
             <div class="card-body">
 
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped align-middle">
+                    <table class="table table-striped table-hover align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>No</th>
@@ -59,61 +58,43 @@
                         <tbody>
                             @forelse($rekam as $i => $r)
                                 <tr>
+
                                     <td>{{ $i + 1 }}</td>
 
-                                    {{-- Hewan --}}
+                                    <td>{{ $r->reservasi?->pet?->nama ?? '-' }}</td>
+
+                                    <td>{{ $r->reservasi?->pet?->pemilik?->user?->nama ?? '-' }}</td>
+
                                     <td>
-                                        {{ $r->reservasi?->pet?->nama ?? '-' }}
-                                        @if($r->reservasi?->pet?->deleted_at)
-                                            <br><span class="badge bg-danger">Pet Terhapus</span>
-                                        @endif
+                                        {{ $r->created_at ? \Carbon\Carbon::parse($r->created_at)->format('d M Y - H:i').' WIB' : '-' }}
                                     </td>
 
-                                    {{-- Pemilik --}}
-                                    <td>
-                                        {{ $r->reservasi?->pet?->pemilik?->user?->nama ?? '-' }}
-                                    </td>
-
-                                    {{-- Tanggal --}}
-                                    <td>
-                                        @if($r->created_at)
-                                            {{ \Carbon\Carbon::parse($r->created_at)->format('d M Y - H:i') }} WIB
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Dokter --}}
                                     <td>{{ $r->dokterPemeriksa?->user?->nama ?? '-' }}</td>
 
-                                    {{-- Diagnosa --}}
-                                    <td><small>{{ Str::limit($r->diagnosa, 50) }}</small></td>
+                                    <td><small>{{ Str::limit($r->diagnosa,50) }}</small></td>
 
-                                    {{-- Aksi --}}
                                     <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            {{-- Detail --}}
-                                            <a href="{{ route('dokter.rekammedis.detail', $r->idrekam_medis) }}"
+                                        <div class="btn-group btn-group-sm">
+
+                                            <a href="{{ route('admin.rekammedis.detail', $r->idrekam_medis) }}" 
                                                class="btn btn-info btn-sm">
                                                 <i class="bi bi-eye"></i>
                                             </a>
 
-                                            {{-- Edit --}}
-                                            <a href="{{ route('dokter.rekammedis.edit', $r->idrekam_medis) }}"
+                                            <a href="{{ route('admin.rekammedis.edit', $r->idrekam_medis) }}" 
                                                class="btn btn-warning btn-sm">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            {{-- Delete --}}
-                                            <form action="{{ route('dokter.rekammedis.destroy', $r->idrekam_medis) }}"
+                                            <form action="{{ route('admin.rekammedis.destroy', $r->idrekam_medis) }}" 
                                                   method="POST" class="d-inline"
                                                   onsubmit="return confirm('Yakin ingin menghapus rekam medis ini?')">
-                                                @csrf
-                                                @method('DELETE')
+                                                @csrf @method('DELETE')
                                                 <button class="btn btn-danger btn-sm">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
+
                                         </div>
                                     </td>
 
@@ -133,7 +114,6 @@
 
             </div>
         </div>
-
     </div>
 </div>
 

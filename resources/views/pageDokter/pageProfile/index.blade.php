@@ -1,15 +1,15 @@
 @extends('layouts.adminlte.app')
 
-@section('title', 'Profil Perawat')
+@section('title', 'Profil Dokter')
 
 @section('content')
 
 <div class="app-content-header">
   <div class="container-fluid">
     <h3 class="fw-bold text-dark">
-      <i class="bi bi-person-circle text-primary me-2"></i>Profil Perawat
+      <i class="bi bi-person-circle text-primary me-2"></i>Profil Dokter
     </h3>
-    <p class="text-muted small">Informasi akun dan data perawat.</p>
+    <p class="text-muted small">Informasi akun dan data Dokter.</p>
   </div>
 </div>
 
@@ -36,28 +36,28 @@
           {{ $user->email ?? '- Tidak tersedia -' }}
         </p>
 
-        {{-- ===================== DATA PERAWAT ===================== --}}
-        <h5 class="fw-bold text-primary mt-4">Data Perawat</h5>
+        {{-- ===================== DATA Dokter ===================== --}}
+        <h5 class="fw-bold text-primary mt-4">Data Dokter</h5>
         <hr>
 
         <p><strong>Jenis Kelamin:</strong>
-          @if ($perawat->jenis_kelamin)
-              {{ $perawat->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
+          @if ($dokter->jenis_kelamin)
+              {{ $dokter->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
           @else
               - Belum diisi -
           @endif
         </p>
 
         <p><strong>Alamat:</strong> 
-          {{ $perawat->alamat ? ucwords($perawat->alamat) : '- Belum diisi -' }}
+          {{ $dokter->alamat ? ucwords($dokter->alamat) : '- Belum diisi -' }}
         </p>
 
         <p><strong>No HP:</strong> 
-          {{ $perawat->no_hp ?? '- Belum diisi -' }}
+          {{ $dokter->no_hp ?? '- Belum diisi -' }}
         </p>
 
-        <p><strong>Pendidikan:</strong> 
-          {{ $perawat->pendidikan ?? '- Belum diisi -' }}
+        <p><strong>Bidang:</strong> 
+          {{ $dokter->bidang_dokter ?? '- Belum diisi -' }}
         </p>
 
       </div>

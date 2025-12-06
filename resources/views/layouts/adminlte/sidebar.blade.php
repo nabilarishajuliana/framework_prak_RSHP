@@ -67,6 +67,12 @@ function isRole($roleName)
             <p>Temu Dokter</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="{{ route('admin.rekammedis') }}" class="nav-link">
+            <i class="bi bi-calendar nav-icon"></i>
+            <p>Rekam Medis</p>
+          </a>
+        </li>
 
         @endif
 
@@ -83,6 +89,12 @@ function isRole($roleName)
         <li class="nav-header">MENU DOKTER</li>
         <li class="nav-item"><a href="{{ route('dokter.rekammedis') }}" class="nav-link"><i class="bi bi-journal-text"></i>
             <p>Rekam Medis</p>
+          </a></li>
+          <li class="nav-item"><a href="{{ route('dokter.dataPasien') }}" class="nav-link"><i class="bi bi-people"></i>
+            <p>Data Pasien</p>
+          </a></li>
+          <li class="nav-item"><a href="{{ route('dokter.profile') }}" class="nav-link"><i class="bi bi-person-badge"></i>
+            <p>Profil Saya</p>
           </a></li>
         @endif
 

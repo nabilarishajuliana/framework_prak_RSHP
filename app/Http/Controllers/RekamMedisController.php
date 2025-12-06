@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Pemilik;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,13 +15,26 @@ use App\Models\KodeTindakanTerapi;
 
 class RekamMedisController extends Controller
 {
+    function isRole($role)
+    {
+        return strtolower(session('user_role_name')) === strtolower($role);
+    }
+
+    private function getViewPath()
+    {
+        if ($this->isRole('administrator')) return 'pageAdmin.pageRekamMedis.';
+        if ($this->isRole('dokter')) return 'pageDokter.pageRekamMedis.';
+        return 'pagePerawat.pageRekamMedis.'; // default perawat
+    }
+
     public function create($reservasiId = null)
     {
+        $view = $this->getViewPath() . 'create';
         $selectedReservasi = null;
 
-    if ($reservasiId) {
-        $selectedReservasi = TemuDokter::whereNull('deleted_at')->find($reservasiId);
-    }
+        if ($reservasiId) {
+            $selectedReservasi = TemuDokter::whereNull('deleted_at')->find($reservasiId);
+        }
         // ===================== ANTRIAN HARI INI (tanpa soft delete) =====================
         $antrian = TemuDokter::with([
             'pet' => function ($p) {
@@ -29,7 +43,7 @@ class RekamMedisController extends Controller
             }
         ])
             ->where('status', 'N')
-            ->whereDate('waktu_daftar', Carbon::today())
+            // ->whereDate('waktu_daftar', Carbon::today())
             ->whereNull('deleted_at') // temu_dokter harus aktif
             ->whereHas('pet', function ($q) {
                 $q->whereNull('deleted_at'); // pet aktif
@@ -56,7 +70,7 @@ class RekamMedisController extends Controller
             ->get();
 
 
-        return view('pagePerawat.pageRekamMedis.create', compact('antrian', 'dokter', 'tindakan', 'selectedReservasi'));
+        return view($view, compact('antrian', 'dokter', 'tindakan', 'selectedReservasi'));
     }
 
 
@@ -111,8 +125,13 @@ class RekamMedisController extends Controller
             // Commit transaction jika semua berhasil
             DB::commit();
 
-            return redirect()
-                ->route('perawat.rekammedis')
+            $redirectRoute = $this->isRole('administrator')
+                ? 'admin.rekammedis'
+                : ($this->isRole('dokter')
+                    ? 'dokter.rekammedis'
+                    : 'perawat.rekammedis');
+
+            return redirect()->route($redirectRoute)
                 ->with('success', 'Rekam medis berhasil ditambahkan!');
         } catch (\Exception $e) {
             // Rollback jika terjadi error
@@ -141,7 +160,9 @@ class RekamMedisController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('pagePerawat.pageRekamMedis.index', compact('rekam'));
+        $view = $this->getViewPath() . 'index';
+
+        return view($view, compact('rekam'));
     }
 
     public function show($id)
@@ -163,11 +184,17 @@ class RekamMedisController extends Controller
             }
         ])->findOrFail($id);
 
-        return view('pagePerawat.pageRekamMedis.detail', compact('rekam'));
+        $view = $this->getViewPath() . 'detail';
+
+
+
+        return view($view, compact('rekam'));
     }
 
     public function edit($id)
     {
+        $view = $this->getViewPath() . 'edit';
+
         // Ambil rekam medis yang akan diedit
         $rekam = RekamMedis::with([
             'reservasi' => function ($q) {
@@ -199,7 +226,7 @@ class RekamMedisController extends Controller
             ->get();
 
 
-        return view('pagePerawat.pageRekamMedis.edit', compact('rekam', 'dokter', 'tindakan'));
+        return view($view, compact('rekam', 'dokter', 'tindakan'));
     }
 
     public function update(Request $request, $id)
@@ -249,9 +276,14 @@ class RekamMedisController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('perawat.rekammedis')
-                ->with('success', 'Rekam medis berhasil diupdate!');
+            $redirectRoute = $this->isRole('administrator')
+                ? 'admin.rekammedis'
+                : ($this->isRole('dokter')
+                    ? 'dokter.rekammedis'
+                    : 'perawat.rekammedis');
+
+            return redirect()->route($redirectRoute)
+                ->with('success', 'Rekam medis berhasil diperbarui!');
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -277,8 +309,13 @@ class RekamMedisController extends Controller
 
             DB::commit();
 
-            return redirect()
-                ->route('perawat.rekammedis')
+            $redirectRoute = $this->isRole('administrator')
+                ? 'admin.rekammedis'
+                : ($this->isRole('dokter')
+                    ? 'dokter.rekammedis'
+                    : 'perawat.rekammedis');
+
+            return redirect()->route($redirectRoute)
                 ->with('success', 'Rekam medis berhasil dihapus!');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -287,5 +324,103 @@ class RekamMedisController extends Controller
                 ->back()
                 ->with('error', 'Gagal menghapus rekam medis: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Display list of rekam medis
+     */
+    public function indexPemilik()
+    {
+        $idUser = session('user_id');
+        
+        $pemilik = Pemilik::where('iduser', $idUser)->first();
+        
+        if (!$pemilik) {
+            return redirect()->route('login')
+                ->with('error', 'Data pemilik tidak ditemukan');
+        }
+        
+        // Ambil semua rekam medis dari pet-pet yang dimiliki
+        $rekamMedis = RekamMedis::with([
+                'temuDokter.pet.rasHewan',
+                'dokterPemeriksa.user',
+                'detail.kodeTindakan'
+            ])
+            ->whereHas('temuDokter.pet', function($query) use ($pemilik) {
+                $query->where('idpemilik', $pemilik->idpemilik);
+            })
+            ->whereNull('rekam_medis.deleted_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('pagePemilik.pageRekamMedis.index', compact('pemilik', 'rekamMedis'));
+    }
+
+    /**
+     * Display rekam medis detail
+     */
+    public function showPemilik($id)
+    {
+        $idUser = session('user_id');
+        
+        $pemilik = Pemilik::where('iduser', $idUser)->first();
+        
+        if (!$pemilik) {
+            return redirect()->route('login')
+                ->with('error', 'Data pemilik tidak ditemukan');
+        }
+        
+        $rekamMedis = RekamMedis::with([
+                'temuDokter.pet.rasHewan',
+                'dokterPemeriksa.user',
+                'detail.kodeTindakan.kategori'
+            ])
+            ->whereHas('temuDokter.pet', function($query) use ($pemilik) {
+                $query->where('idpemilik', $pemilik->idpemilik);
+            })
+            ->where('idrekam_medis', $id)
+            ->whereNull('rekam_medis.deleted_at')
+            ->first();
+            
+        if (!$rekamMedis) {
+            return redirect()->route('pemilik.rekammedis.index')
+                ->with('error', 'Rekam medis tidak ditemukan');
+        }
+        
+        return view('pagePemilik.pageRekamMedis.show', compact('pemilik', 'rekamMedis'));
+    }
+
+    /**
+     * Print rekam medis (PDF/Print view)
+     */
+    public function print($id)
+    {
+        $idUser = session('user_id');
+        
+        $pemilik = Pemilik::where('iduser', $idUser)->first();
+        
+        if (!$pemilik) {
+            return redirect()->route('login')
+                ->with('error', 'Data pemilik tidak ditemukan');
+        }
+        
+        $rekamMedis = RekamMedis::with([
+                'temuDokter.pet.rasHewan',
+                'dokterPemeriksa.user',
+                'detailRekamMedis.kodeTindakanTerapi.kategori'
+            ])
+            ->whereHas('temuDokter.pet', function($query) use ($pemilik) {
+                $query->where('idpemilik', $pemilik->idpemilik);
+            })
+            ->where('idrekam_medis', $id)
+            ->whereNull('rekam_medis.deleted_at')
+            ->first();
+            
+        if (!$rekamMedis) {
+            return redirect()->route('pemilik.rekammedis.index')
+                ->with('error', 'Rekam medis tidak ditemukan');
+        }
+        
+        return view('pagePemilik.pageRekamMedis.print', compact('pemilik', 'rekamMedis'));
     }
 }

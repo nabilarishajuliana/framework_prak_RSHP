@@ -28,7 +28,7 @@ class Pemilik extends Model
     // Relasi ke Pet
     public function pet()
     {
-        return $this->hasMany(Pet::class, 'idpemilik', 'idpemilik');
+        return $this->hasMany(Pet::class, 'idpemilik', 'idpemilik') ->whereNull('deleted_at');
     }
 
     // Relasi ke User
@@ -46,5 +46,6 @@ class Pemilik extends Model
         }
     });
 }
+
 
 }

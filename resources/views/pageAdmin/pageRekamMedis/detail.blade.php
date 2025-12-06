@@ -1,6 +1,6 @@
 @extends('layouts.adminlte.app')
 
-@section('title', 'Detail Rekam Medis - Dokter')
+@section('title', 'Detail Rekam Medis - Admin')
 
 @section('content')
 
@@ -11,10 +11,10 @@
                 <i class="bi bi-file-medical me-2 text-primary"></i>
                 Detail Rekam Medis
             </h3>
-            <p class="text-muted small">Informasi rekam medis pasien untuk dokter pemeriksa.</p>
+            <p class="text-muted small">Halaman administrator – akses penuh data rekam medis.</p>
         </div>
 
-        <a href="{{ route('dokter.rekammedis') }}" class="btn btn-secondary btn-sm rounded-pill px-3">
+        <a href="{{ route('admin.rekammedis') }}" class="btn btn-secondary btn-sm rounded-pill px-3">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>

@@ -70,6 +70,11 @@ class DataPasienController extends Controller
         ->orderBy('no_urut', 'asc')
         ->get();
 
+        if ($this->isRole('dokter')) {
+            return view('pageDokter.pagePasien.index', compact('pasien'));
+        }
+
+        // default perawat
         return view('pagePerawat.pagePasien.index', compact('pasien'));
     }
 
@@ -122,6 +127,10 @@ class DataPasienController extends Controller
         ])
         ->withTrashed()     // detail boleh lihat semua data lampau
         ->findOrFail($id);
+
+         if ($this->isRole('dokter')) {
+            return view('pageDokter.pagePasien.detail', compact('data'));
+        }
 
         return view('pagePerawat.pagePasien.detail', compact('data'));
     }

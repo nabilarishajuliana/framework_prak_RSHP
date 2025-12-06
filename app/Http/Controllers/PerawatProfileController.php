@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Dokter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Perawat;
+
 use App\Models\User;
 
 class PerawatProfileController extends Controller
@@ -12,7 +14,7 @@ class PerawatProfileController extends Controller
     /** =========================
      * SHOW PROFILE
      * ========================== */
-    public function index()
+    public function indexPerawat()
     {
         $userId = session('user_id');
 
@@ -25,57 +27,70 @@ class PerawatProfileController extends Controller
         return view('pagePerawat.pageProfile.index', compact('user', 'perawat'));
     }
 
-
-    /** =========================
-     * EDIT PROFILE
-     * ========================== */
-    public function edit()
+    public function indexDokter()
     {
         $userId = session('user_id');
 
         $user = User::withTrashed()->findOrFail($userId);
 
-        $perawat = Perawat::withTrashed()
+        $dokter = Dokter::withTrashed()
             ->where('iduser', $userId)
             ->first();
 
-        return view('pagePerawat.pageProfile.edit', compact('user', 'perawat'));
+        return view('pageDokter.pageProfile.index', compact('user', 'dokter'));
     }
 
 
-    /** =========================
-     * UPDATE PROFILE
-     * ========================== */
-    public function update(Request $request)
-    {
-        $request->validate([
-            'nama'          => 'required|string|max:100',
-            'email'         => 'required|email',
-            'jenis_kelamin' => 'required|in:L,P',
-            'alamat'        => 'nullable|string',
-            'no_hp'         => 'nullable|string|max:15',
-            'pendidikan'    => 'nullable|string',
-        ]);
+    // /** =========================
+    //  * EDIT PROFILE
+    //  * ========================== */
+    // public function edit()
+    // {
+    //     $userId = session('user_id');
 
-        $user = User::findOrFail(session('user_id'));
-        $perawat = Perawat::where('iduser', session('user_id'))->first();
+    //     $user = User::withTrashed()->findOrFail($userId);
 
-        // update user table
-        $user->update([
-            'nama'  => $request->nama,
-            'email' => $request->email,
-        ]);
+    //     $perawat = Perawat::withTrashed()
+    //         ->where('iduser', $userId)
+    //         ->first();
 
-        // update perawat table
-        $perawat->update([
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'alamat'        => $request->alamat,
-            'no_hp'         => $request->no_hp,
-            'pendidikan'    => $request->pendidikan,
-        ]);
+    //     return view('pagePerawat.pageProfile.edit', compact('user', 'perawat'));
+    // }
 
-        return redirect()
-            ->route('perawat.profile')
-            ->with('success', 'Profil berhasil diperbarui!');
-    }
+
+    // /** =========================
+    //  * UPDATE PROFILE
+    //  * ========================== */
+    // public function update(Request $request)
+    // {
+    //     $request->validate([
+    //         'nama'          => 'required|string|max:100',
+    //         'email'         => 'required|email',
+    //         'jenis_kelamin' => 'required|in:L,P',
+    //         'alamat'        => 'nullable|string',
+    //         'no_hp'         => 'nullable|string|max:15',
+    //         'pendidikan'    => 'nullable|string',
+    //     ]);
+
+    //     $user = User::findOrFail(session('user_id'));
+    //     $perawat = Perawat::where('iduser', session('user_id'))->first();
+
+    //     // update user table
+    //     $user->update([
+    //         'nama'  => $request->nama,
+    //         'email' => $request->email,
+    //     ]);
+
+    //     // update perawat table
+    //     $perawat->update([
+    //         'jenis_kelamin' => $request->jenis_kelamin,
+    //         'alamat'        => $request->alamat,
+    //         'no_hp'         => $request->no_hp,
+    //         'pendidikan'    => $request->pendidikan,
+    //     ]);
+
+    //     return redirect()
+    //         ->route('perawat.profile')
+    //         ->with('success', 'Profil berhasil diperbarui!');
+    // }
 }

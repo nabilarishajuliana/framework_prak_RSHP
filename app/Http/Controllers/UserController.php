@@ -22,7 +22,7 @@ class UserController extends Controller
     /** 🔹 Form create user */
     public function create()
     {
-        $roles = Role::all();
+        $roles = Role::whereNotIn('nama_role', ['dokter', 'perawat'])->get();
         return view('pageadmin.pageuser.create', compact('roles'));
     }
 
