@@ -17,7 +17,6 @@ class KategoriKlinis extends Model
 
     protected $fillable = [
         'nama_kategori_klinis',
-        'deleted_at',
         'deleted_by'
     ];
 
@@ -30,18 +29,26 @@ class KategoriKlinis extends Model
 // namespace App\Models;
 
 // use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Database\Eloquent\SoftDeletes;
 
 // class KategoriKlinis extends Model
 // {
-//         protected $table = 'kategori_klinis';
+//     use SoftDeletes;
+
+//     protected $table = 'kategori_klinis';
 //     protected $primaryKey = 'idkategori_klinis';
 //     public $timestamps = false;
 
-//     protected $fillable = ['nama_kategori_klinis'];
+//     protected $dates = ['deleted_at'];
+
+//     protected $fillable = [
+//         'nama_kategori_klinis',
+//         'deleted_at',
+//         'deleted_by'
+//     ];
 
 //     public function kodeTindakanTerapi()
-// {
-//     return $this->hasMany(KodeTindakanTerapi::class, 'idkategori_klinis', 'idkategori_klinis');
-// }
-
+//     {
+//         return $this->hasMany(KodeTindakanTerapi::class, 'idkategori_klinis', 'idkategori_klinis');
+//     }
 // }

@@ -44,8 +44,8 @@ class dashboardPerawatController extends Controller
 
     public function coba()
     {
-        
 
-        return view('pageperawat.coba' );
+
+        return view('pageperawat.coba');
     }
 }

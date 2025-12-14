@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use App\Models\Dokter;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,13 +14,11 @@ class DokterController extends Controller
     /** INDEX */
     public function index()
     {
-        // Hanya ambil dokter yang belum terhapus (deleted_at = NULL)
-        $dokter = Dokter::with('user')
-            ->whereNull('deleted_at')
-            ->get();
+        $dokter = Dokter::with('user')->get(); // Soft delete sudah otomatis
 
         return view('pageadmin.pagedokter.index', compact('dokter'));
     }
+
 
     /** CREATE */
     public function create()
@@ -91,32 +91,17 @@ class DokterController extends Controller
     }
 
     /** DELETE (Soft Delete) */
-
-    /** 🗑 Soft Delete Dokter + Soft Delete User */
     public function destroy($id)
     {
-        $dokter = Dokter::findOrFail($id);
+        $dokter = Dokter::with('user')->findOrFail($id);
 
-        // Simpan id user
-        $idUser = $dokter->iduser;
+        // 🔥 delete USER (cascade ke dokter, role_user, dll)
+        $dokter->user->deleted_by = Auth::id();
+        $dokter->user->save();
+        $dokter->user->delete();
 
-        // Soft delete dokter (update deleted_at & deleted_by)
-        $dokter->update([
-            'deleted_at' => now(),
-            'deleted_by' => session('user_id'), // user yg menghapus
-        ]);
-
-        // Soft delete user dokter juga
-        $user = User::findOrFail($idUser);
-
-            $user->update([
-                'deleted_at' => now(),
-                'deleted_by' => session('user_id'),
-            ]);
-                // dd('dokter=',$dokter,"iduser",$idUser,"alamat",$alamat,'user',$user );
-
-
-        return redirect()->route('admin.dokter')->with('success', 'Data dokter berhasil dihapus (soft delete+user)! $iduser');
+        return redirect()->route('admin.dokter')
+            ->with('success', 'Dokter dan akun user berhasil dihapus.');
     }
 
     

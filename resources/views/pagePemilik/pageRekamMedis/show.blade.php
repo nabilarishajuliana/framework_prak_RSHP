@@ -43,8 +43,8 @@
                              style="width: 100px; height: 100px;">
                             <i class="fas fa-paw text-primary" style="font-size: 3rem;"></i>
                         </div> -->
-                        <h4 class="fw-bold mb-1">{{ $rekamMedis->temuDokter->pet->nama }}</h4>
-                        <p class="text-muted mb-0">{{ $rekamMedis->temuDokter->pet->rasHewan->nama_ras }}</p>
+                        <h4 class="fw-bold mb-1">{{ $rekamMedis->reservasi->pet->nama }}</h4>
+                        <p class="text-muted mb-0">{{ $rekamMedis->reservasi->pet->rasHewan->nama_ras }}</p>
                     </div>
 
                     <hr>
@@ -52,7 +52,7 @@
                     <div class="mb-3">
                         <small class="text-muted d-block mb-1">Jenis Kelamin</small>
                         <p class="mb-0 fw-semibold">
-                            @if($rekamMedis->temuDokter->pet->jenis_kelamin == 'L')
+                            @if($rekamMedis->reservasi->pet->jenis_kelamin == 'L')
                                 <i class="fas fa-mars text-primary me-1"></i>Jantan
                             @else
                                 <i class="fas fa-venus text-danger me-1"></i>Betina
@@ -64,7 +64,7 @@
                         <small class="text-muted d-block mb-1">Tgl Lahir</small>
                         <p class="mb-0 fw-semibold">
                             <i class="fas fa-birthday-cake me-1"></i>
-                            {{ $rekamMedis->temuDokter->pet->tanggal_lahir }}
+                            {{ $rekamMedis->reservasi->pet->tanggal_lahir }}
                         </p>
                     </div>
 
@@ -72,7 +72,7 @@
                         <small class="text-muted d-block mb-1">Umur</small>
                         <p class="mb-0 fw-semibold">
                             <i class="fas fa-birthday-cake me-1"></i>
-                            {{ $rekamMedis->temuDokter->pet->umur_text }}
+                            {{ $rekamMedis->reservasi->pet->umur_text }}
                         </p>
                     </div>
 
@@ -80,7 +80,7 @@
                         <small class="text-muted d-block mb-1">Warna / Tanda</small>
                         <p class="mb-0 fw-semibold">
                             <i class="fas fa-palette me-1"></i>
-                            {{ $rekamMedis->temuDokter->pet->warna_tanda }}
+                            {{ $rekamMedis->reservasi->pet->warna_tanda }}
                         </p>
                     </div>
 
@@ -131,7 +131,7 @@
                             <small class="text-muted d-block mb-1">No. Antrian</small>
                             <p class="mb-0 fw-semibold">
                                 <i class="fas fa-hashtag text-warning me-2"></i>
-                                {{ $rekamMedis->temuDokter->no_urut ?? '-' }}
+                                {{ $rekamMedis->reservasi->no_urut ?? '-' }}
                             </p>
                         </div>
                     </div>

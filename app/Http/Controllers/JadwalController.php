@@ -16,23 +16,23 @@ class JadwalController extends Controller
     public function index()
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::where('iduser', $idUser)->first();
-        
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         // Ambil semua jadwal temu dokter dari pet-pet yang dimiliki
         $jadwalTemuDokter = TemuDokter::with(['pet.rasHewan', 'roleUser.role'])
-            ->whereHas('pet', function($query) use ($pemilik) {
+            ->whereHas('pet', function ($query) use ($pemilik) {
                 $query->where('idpemilik', $pemilik->idpemilik);
             })
             ->whereNull('temu_dokter.deleted_at')
             ->orderBy('waktu_daftar', 'desc')
             ->get();
-        
+
         return view('pagePemilik.pageJadwal.index', compact('pemilik', 'jadwalTemuDokter'));
     }
 
@@ -42,19 +42,19 @@ class JadwalController extends Controller
     public function create()
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::where('iduser', $idUser)->first();
-        
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         // Ambil semua pet milik pemilik
         $pets = Pet::where('idpemilik', $pemilik->idpemilik)
             ->whereNull('deleted_at')
             ->get();
-        
+
         return view('pagePemilik.pageJadwal.create', compact('pemilik', 'pets'));
     }
 
@@ -74,27 +74,27 @@ class JadwalController extends Controller
     public function show($id)
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::where('iduser', $idUser)->first();
-        
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         $jadwal = TemuDokter::with(['pet.rasHewan', 'roleUser.role', 'rekamMedis'])
-            ->whereHas('pet', function($query) use ($pemilik) {
+            ->whereHas('pet', function ($query) use ($pemilik) {
                 $query->where('idpemilik', $pemilik->idpemilik);
             })
             ->where('idreservasi_dokter', $id)
             ->whereNull('temu_dokter.deleted_at')
             ->first();
-            
+
         if (!$jadwal) {
             return redirect()->route('pemilik.jadwal.index')
                 ->with('error', 'Jadwal tidak ditemukan');
         }
-        
+
         return view('pagePemilik.pageJadwal.show', compact('pemilik', 'jadwal'));
     }
 

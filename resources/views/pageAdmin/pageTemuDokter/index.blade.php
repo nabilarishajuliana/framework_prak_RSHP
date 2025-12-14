@@ -25,8 +25,21 @@
 
     {{-- Alerts --}}
     @if(session('success'))
-      <div class="alert alert-success auto-dismiss">{{ session('success') }}</div>
+    <div class="alert alert-success alert-dismissible fade show auto-dismiss" role="alert">
+      <i class="bi bi-check-circle me-1"></i>
+      {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
     @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show auto-dismiss" role="alert">
+      <i class="bi bi-exclamation-triangle me-1"></i>
+      {{ session('error') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
 
     <div class="card shadow-sm">
       <div class="card-body table-responsive">
@@ -46,47 +59,50 @@
 
           <tbody>
             @forelse ($antrian as $i => $a)
-              <tr>
-                <td>{{ $i+1 }}</td>
-                <td><span class="badge bg-primary">{{ $a->no_urut }}</span></td>
+            <tr>
+              <td>{{ $i+1 }}</td>
+              <td><span class="badge bg-primary">{{ $a->no_urut }}</span></td>
 
-                <td>{{ $a->pet->nama }}</td>
-                <td>{{ $a->pet->pemilik->user->nama }}</td>
+              <td>{{ $a->pet->nama ?? '-' }}</td>
+              <td>{{ $a->pet->pemilik->user->nama ?? '-' }}</td>
 
-                <td>{{ \Carbon\Carbon::parse($a->waktu_daftar)->format('d M Y H:i') }}</td>
 
-                <td>
-                  @if($a->status == 'N')
-                    <span class="badge bg-warning text-dark">Menunggu</span>
-                  @else
-                    <span class="badge bg-success">Selesai</span>
-                  @endif
-                </td>
+              <td>{{ \Carbon\Carbon::parse($a->waktu_daftar)->format('d M Y H:i') }}</td>
 
-                <td>
-                  {{-- STATUS TOGGLE --}}
-                  @if($a->status == 'N')
-                    <a href="{{ route('admin.temu.status', [$a->idreservasi_dokter, 'S']) }}"
-                       class="btn btn-success btn-sm rounded-pill">Selesai</a>
-                  @else
-                    <a href="{{ route('admin.temu.status', [$a->idreservasi_dokter, 'N']) }}"
-                       class="btn btn-warning btn-sm rounded-pill">Kembalikan</a>
-                  @endif
+              <td>
+                @if($a->status == 'N')
+                <span class="badge bg-warning text-dark">Menunggu</span>
+                @else
+                <span class="badge bg-success">Selesai</span>
+                @endif
+              </td>
 
-                  {{-- DELETE --}}
-                  <form action="{{ route('admin.temu.destroy', $a->idreservasi_dokter) }}"
-                        method="POST" class="d-inline">
-                    @csrf @method('DELETE')
-                    <button onclick="return confirm('Hapus antrian ini?')" 
-                            class="btn btn-danger btn-sm rounded-pill">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </form>
-                </td>
+              <td>
+                {{-- STATUS TOGGLE --}}
+                @if($a->status == 'N')
+                <a href="{{ route('admin.temu.status', [$a->idreservasi_dokter, 'S']) }}"
+                  class="btn btn-success btn-sm rounded-pill">Selesai</a>
+                @else
+                <a href="{{ route('admin.temu.status', [$a->idreservasi_dokter, 'N']) }}"
+                  class="btn btn-warning btn-sm rounded-pill">Kembalikan</a>
+                @endif
 
-              </tr>
+                {{-- DELETE --}}
+                <form action="{{ route('admin.temu.destroy', $a->idreservasi_dokter) }}"
+                  method="POST" class="d-inline">
+                  @csrf @method('DELETE')
+                  <button onclick="return confirm('Hapus antrian ini?')"
+                    class="btn btn-danger btn-sm rounded-pill">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+
+            </tr>
             @empty
-              <tr><td colspan="7" class="text-center text-muted">Tidak ada antrian.</td></tr>
+            <tr>
+              <td colspan="7" class="text-center text-muted">Tidak ada antrian.</td>
+            </tr>
             @endforelse
           </tbody>
 
@@ -99,3 +115,10 @@
 </div>
 
 @endsection
+
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.auto-dismiss')
+      .forEach(el => el.remove());
+  }, 3000);
+</script>

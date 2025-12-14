@@ -17,7 +17,7 @@ class PemilikController extends Controller
     /** ======================= INDEX ======================= */
     public function index()
     {
-        $pemilik = Pemilik::with(['user', 'pet'])->whereNull('deleted_at')->get();
+        $pemilik = Pemilik::with(['user', 'pet'])->get();
 
         if ($this->isRole('administrator')) {
             return view('pageadmin.pagepemilik.index', compact('pemilik'));
@@ -108,29 +108,18 @@ class PemilikController extends Controller
     /** ======================= DELETE (SoftDelete) ======================= */
     public function destroy($id)
     {
-        $pemilik = Pemilik::findOrFail($id);
-        $idUser = $pemilik->iduser;
+        $pemilik = Pemilik::with('user')->findOrFail($id);
 
-        // isi deleted_by
-        $pemilik->deleted_by = Auth::id();
-        $pemilik->save();
-
-        // soft delete
-        $pemilik->delete();
-
-        // user ikut soft delete
-        $user = User::findOrFail($idUser);
-
-            $user->update([
-                'deleted_at' => now(),
-                'deleted_by' => session('user_id'),
-            ]);
+        // 🔥 delete USER (User model yg akan cascade delete pemilik + role_user)
+        $pemilik->user->deleted_by = Auth::id();
+        $pemilik->user->save();
+        $pemilik->user->delete();
 
         if ($this->isRole('administrator')) {
-            return redirect()->route('admin.pemilik')->with('success', 'Data berhasil dihapus!');
+            return redirect()->route('admin.pemilik')->with('success', 'Pemilik dan akun user berhasil dihapus.');
         }
 
-        return redirect()->route('resepsionis.pemilik')->with('success', 'Data berhasil dihapus!');
+        return redirect()->route('resepsionis.pemilik')->with('success', 'Pemilik dan akun user berhasil dihapus.');
     }
 
     /** ======================= VALIDATION ======================= */

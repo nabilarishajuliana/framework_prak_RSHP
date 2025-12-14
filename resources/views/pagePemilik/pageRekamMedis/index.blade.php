@@ -39,10 +39,10 @@
                     <label class="form-label small fw-semibold">Filter Pet</label>
                     <select class="form-select" id="filterPet">
                         <option value="">Semua Pet</option>
-                        @foreach($rekamMedis->unique('temuDokter.pet.idpet') as $rm)
-                            @if($rm->temuDokter && $rm->temuDokter->pet)
-                            <option value="{{ $rm->temuDokter->pet->idpet }}">
-                                {{ $rm->temuDokter->pet->nama }}
+                        @foreach($rekamMedis->unique('reservasi.pet.idpet') as $rm)
+                            @if($rm->reservasi && $rm->reservasi->pet)
+                            <option value="{{ $rm->reservasi->pet->idpet }}">
+                                {{ $rm->reservasi->pet->nama }}
                             </option>
                             @endif
                         @endforeach
@@ -107,7 +107,7 @@
                         <div>
                             <h6 class="text-white-50 mb-1 small">Pet Terdaftar</h6>
                             <h2 class="fw-bold mb-0">
-                                {{ $rekamMedis->unique('temuDokter.pet.idpet')->count() }}
+                                {{ $rekamMedis->unique('reservasi.pet.idpet')->count() }}
                             </h2>
                         </div>
                         <div class="bg-white bg-opacity-25 rounded-circle p-3">
@@ -123,7 +123,7 @@
     @if($rekamMedis->count() > 0)
         <div class="row g-3" id="rekamMedisList">
             @foreach($rekamMedis as $rm)
-            <div class="col-12" data-pet-id="{{ $rm->temuDokter->pet->idpet ?? '' }}">
+            <div class="col-12" data-pet-id="{{ $rm->reservasi->pet->idpet ?? '' }}">
                 <div class="card border-0 shadow-sm hover-card">
                     <div class="card-body">
                         <div class="row align-items-center">
@@ -135,10 +135,10 @@
                                     </div>
                                     <div>
                                         <h6 class="fw-bold mb-1">
-                                            {{ $rm->temuDokter->pet->nama ?? 'N/A' }}
+                                            {{ $rm->reservasi->pet->nama ?? 'N/A' }}
                                         </h6>
                                         <small class="text-muted">
-                                            {{ $rm->temuDokter->pet->rasHewan->nama_ras ?? 'N/A' }}
+                                            {{ $rm->reservasi->pet->rasHewan->nama_ras ?? 'N/A' }}
                                         </small>
                                     </div>
                                 </div>

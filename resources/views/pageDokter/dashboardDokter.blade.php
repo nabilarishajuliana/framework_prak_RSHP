@@ -28,12 +28,12 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <!-- <div class="col-md-4">
             <div class="small-box bg-danger text-white p-3 rounded">
               <h3>{{ $totalBatal }}</h3>
               <p>Pasien Batal</p>
             </div>
-          </div>
+          </div> -->
         </div>
 
       </div>

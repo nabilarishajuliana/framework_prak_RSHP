@@ -22,31 +22,40 @@ class RekamMedis extends Model
         'diagnosa',
         'dokter_pemeriksa',
         'idReservasi_dokter',
-        'deleted_at',
         'deleted_by'
     ];
 
     /* ================= RELASI ================= */
 
     // Rekam medis milik 1 antrian temu dokter
-    public function temuDokter()
-    {
-        return $this->belongsTo(TemuDokter::class, 'idReservasi_dokter', 'idreservasi_dokter');
-    }
+    // public function temuDokter()
+    // {
+    //     return $this->belongsTo(TemuDokter::class, 'idReservasi_dokter', 'idreservasi_dokter')->withTrashed();
+    // }
 
     // Dokter pemeriksa
     public function dokterPemeriksa()
-{
-    return $this->belongsTo(RoleUser::class, 'dokter_pemeriksa', 'idrole_user')
-                ->with(['user']);
-}
+    {
+        return $this->belongsTo(
+            RoleUser::class,
+            'dokter_pemeriksa',
+            'idrole_user'
+        )
+            ->withTrashed() // ⬅️ ROLE_USER boleh sudah dihapus
+            ->with([
+                'user' => function ($q) {
+                    $q->withTrashed(); // ⬅️ USER dokter boleh sudah dihapus
+                }
+            ]);
+    }
+
 
 
     // Rekam medis punya banyak detail
     public function detail()
-{
-    return $this->hasMany(DetailRekamMedis::class, 'idrekam_medis', 'idrekam_medis');
-}
+    {
+        return $this->hasMany(DetailRekamMedis::class, 'idrekam_medis', 'idrekam_medis');
+    }
 
 
     /** Rekam Medis → Temu Dokter */
@@ -62,13 +71,12 @@ class RekamMedis extends Model
     }
 
     protected static function booted()
-{
-    static::deleting(function ($rm) {
+    {
+        static::deleting(function ($rm) {
 
-        if ($rm->detail()->whereNull('deleted_at')->exists()) {
-            throw new \Exception("Tidak bisa menghapus Rekam Medis karena masih memiliki Detail rekam medis.");
-        }
-    });
-}
-
+            if ($rm->detail()->whereNull('deleted_at')->exists()) {
+                throw new \Exception("Tidak bisa menghapus Rekam Medis karena masih memiliki Detail rekam medis.");
+            }
+        });
+    }
 }

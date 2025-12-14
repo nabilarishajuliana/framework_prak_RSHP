@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
 use App\Models\KategoriKlinis;
 
 class KategoriKlinisController extends Controller
 {
-     public function index()
+    public function index()
     {
         $kategoriKlinis = KategoriKlinis::all();
         return view('pageadmin.pagekategoriklinis.index', compact('kategoriKlinis'));
     }
 
-      /** 🔹 Tampilkan form tambah */
+    /** 🔹 Tampilkan form tambah */
     public function create()
     {
         return view('pageadmin.pagekategoriklinis.create');
@@ -29,7 +31,7 @@ class KategoriKlinisController extends Controller
         ]);
 
         return redirect()->route('admin.kategori.klinis')
-                         ->with('success', 'Kategori Klinis berhasil ditambahkan!');
+            ->with('success', 'Kategori Klinis berhasil ditambahkan!');
     }
 
     /** 🔹 Form edit */
@@ -50,18 +52,31 @@ class KategoriKlinisController extends Controller
         ]);
 
         return redirect()->route('admin.kategori.klinis')
-                         ->with('success', 'Kategori Klinis berhasil diperbarui!');
+            ->with('success', 'Kategori Klinis berhasil diperbarui!');
     }
 
     /** 🔹 Hapus data */
     public function destroy($id)
     {
         $kategoriKlinis = KategoriKlinis::findOrFail($id);
+
+        // 🔒 Cegah hapus jika masih dipakai
+        if ($kategoriKlinis->kodeTindakanTerapi()->whereNull('deleted_at')->exists()) {
+            return redirect()->route('admin.kategori.klinis')
+                ->with('error', 'Kategori klinis tidak bisa dihapus karena masih digunakan oleh kode tindakan.');
+        }
+
+        // 🔥 isi deleted_by
+        $kategoriKlinis->deleted_by = Auth::id();
+        $kategoriKlinis->save();
+
+        // soft delete
         $kategoriKlinis->delete();
 
         return redirect()->route('admin.kategori.klinis')
-                         ->with('success', 'Kategori Klinis berhasil dihapus!');
+            ->with('success', 'Kategori klinis berhasil dihapus!');
     }
+
 
     /* =====================================================
      * 🔒 PRIVATE: Helper & Validation

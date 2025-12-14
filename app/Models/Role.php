@@ -17,7 +17,6 @@ class Role extends Model
 
     protected $fillable = [
         'nama_role',
-        'deleted_at',
         'deleted_by'
     ];
 
@@ -26,10 +25,12 @@ class Role extends Model
         return $this->hasMany(RoleUser::class, 'idrole', 'idrole');
     }
 
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'role_user', 'idrole', 'iduser')
-                    ->withPivot('status');
+            ->withPivot('status')
+            ->withTrashed(); // 🔥 PENTING
     }
 }
 

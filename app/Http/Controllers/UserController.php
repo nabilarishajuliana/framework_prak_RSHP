@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
@@ -13,11 +15,12 @@ class UserController extends Controller
     /** 🔹 Tampilkan semua user */
     public function index()
     {
-        $users = User::with(['roles', 'pemilik'])->whereNull('deleted_at')
-            ->get();
-        $roles = Role::all();
+        $users = User::with(['roles', 'pemilik', 'dokter', 'perawat'])->get();
+        $roles = Role::whereIn('nama_role', ['administrator', 'resepsionis'])->get();
+
         return view('pageadmin.pageuser.index', compact('users', 'roles'));
     }
+
 
     /** 🔹 Form create user */
     public function create()
@@ -78,37 +81,42 @@ class UserController extends Controller
     /** 🔹 Hapus user */
     public function destroy($id)
     {
-        try {
-            $user = User::findOrFail($id);
-            $user->roles()->detach();
+        $user = User::findOrFail($id);
 
-            if ($user->pemilik) {
-                $user->pemilik()->delete();
-            }
+        $user->deleted_by = Auth::id();
+        $user->save();
 
-            $user->delete();
+        $user->delete(); // 🔥 otomatis cascade
 
-            return redirect()->route('admin.user')->with('success', 'User berhasil dihapus!');
-        } catch (QueryException $e) {
-            return redirect()->route('admin.user')
-                ->with('error', 'Gagal menghapus user. Pastikan user tidak terhubung dengan data lain.');
-        }
+        return redirect()->route('admin.user')
+            ->with('success', 'User dan seluruh data terkait berhasil dihapus.');
     }
+
+
 
     /** 🔹 Ganti role aktif */
     public function switchRole(Request $request, $id)
     {
         $request->validate([
             'role_id' => 'required|exists:role,idrole',
-        ], [
-            'role_id.required' => 'Pilih role yang ingin diaktifkan terlebih dahulu.',
         ]);
 
         $user = User::findOrFail($id);
+
+        // 🔒 tidak boleh ubah role khusus
+        if ($user->pemilik || $user->dokter || $user->perawat) {
+            return back()->with('error', 'Role user ini tidak dapat diubah.');
+        }
+
+        // 🔥 LOGIC UTAMA
         $user->setActiveRole($request->role_id);
 
-        return redirect()->route('admin.user')->with('success', 'Role aktif user berhasil diubah!');
+        return redirect()->route('admin.user')
+            ->with('success', 'Role aktif user berhasil diubah!');
     }
+
+
+  
 
     /* ===================================================
      * 🔒 VALIDATION

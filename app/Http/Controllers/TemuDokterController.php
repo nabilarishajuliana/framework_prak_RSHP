@@ -39,7 +39,7 @@ class TemuDokterController extends Controller
         if ($this->isRole('administrator')) {
             return view('pageadmin.pagetemudokter.index', compact('antrian', 'filter'));
         }
-// dd(vars: $antrian);
+        // dd(vars: $antrian);
         return view('pageresepsionis.pagetemudokter.index', compact('antrian', 'filter'));
     }
 
@@ -104,8 +104,20 @@ class TemuDokterController extends Controller
     public function destroy($id)
     {
         $antrian = TemuDokter::findOrFail($id);
+
+        // 🔒 CEGAH HAPUS kalau masih ada rekam medis aktif
+        if ($antrian->rekamMedis()->exists()) {
+            return back()->with(
+                'error',
+                'Antrian tidak bisa dihapus karena sudah memiliki rekam medis.'
+            );
+        }
+
+        // 🔥 isi deleted_by SETELAH dipastikan aman
         $antrian->deleted_by = Auth::id();
         $antrian->save();
+
+        // soft delete
         $antrian->delete();
 
         return back()->with('success', 'Data antrian berhasil dihapus!');

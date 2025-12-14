@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use App\Models\Perawat;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -12,12 +14,11 @@ class PerawatController extends Controller
     /** INDEX */
     public function index()
     {
-        $perawat = Perawat::with('user')
-            ->whereNull('deleted_at')
-            ->get();
+        $perawat = Perawat::with('user')->get(); // SoftDeletes otomatis hanya ambil yg aktif
 
         return view('pageadmin.pageperawat.index', compact('perawat'));
     }
+
 
     /** CREATE */
     public function create()
@@ -87,24 +88,17 @@ class PerawatController extends Controller
     /** DESTROY (Soft Delete) */
     public function destroy($id)
     {
-        $perawat = Perawat::findOrFail($id);
-        $idUser = $perawat->iduser;
+        $perawat = Perawat::with('user')->findOrFail($id);
 
-        $perawat->update([
-            'deleted_at' => now(),
-            'deleted_by' => session('user_id'),
-        ]);
+        // 🔥 Soft delete USER (nanti cascade ke perawat + role_user)
+        $perawat->user->deleted_by = Auth::id();
+        $perawat->user->save();
+        $perawat->user->delete();
 
-        $user = User::find($idUser);
-        if ($user) {
-            $user->update([
-                'deleted_at' => now(),
-                'deleted_by' => session('user_id'),
-            ]);
-        }
-
-        return redirect()->route('admin.perawat')->with('success', 'Data perawat berhasil dihapus (soft delete)!');
+        return redirect()->route('admin.perawat')
+            ->with('success', 'Perawat dan akun user berhasil dihapus.');
     }
+
 
     /* ============================
        VALIDATION

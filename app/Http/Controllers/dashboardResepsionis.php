@@ -10,10 +10,9 @@ class dashboardResepsionis extends Controller
 {
     public function index()
     {
-       $totalPemilik = Pemilik::count();
+        $totalPemilik = Pemilik::count();
         $totalPet = Pet::count();
 
         return view('pageresepsionis.dashboardResepsionis', compact('totalPemilik', 'totalPet'));
-    
     }
 }

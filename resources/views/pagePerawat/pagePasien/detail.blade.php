@@ -27,11 +27,11 @@
         <p><strong>Pemilik:</strong> {{ $data->pet->pemilik->user->nama ?? '-' }}</p>
 
         <p><strong>Dokter Pemeriksa:</strong> 
-          {{ $data->rekamMedis->dokterPemeriksa->user->nama ?? '-' }}
+          {{ $data->rekamMedisAll->dokterPemeriksa->user->nama ?? '-' }}
         </p>
 
         <p><strong>Tanggal Pemeriksaan:</strong>
-          {{ $data->rekamMedis->created_at ? \Carbon\Carbon::parse($data->rekamMedis->created_at)->format('d M Y H:i') : '-' }}
+          {{ $data->rekamMedisAll->created_at ? \Carbon\Carbon::parse($data->rekamMedisAll->created_at)->format('d M Y H:i') : '-' }}
         </p>
       </div>
     </div>
@@ -42,7 +42,7 @@
       <div class="card-body">
         <h5 class="fw-bold text-primary mb-3">Detail Rekam Medis</h5>
 
-        @forelse($data->rekamMedis->detail as $d)
+        @forelse($data->rekamMedisAll->detail as $d)
         <div class="border p-3 rounded mb-3">
           <p><strong>Tindakan/Terapi:</strong> {{ $d->kodeTindakan->deskripsi_tindakan_terapi ?? '-' }}</p>
           <p><strong>Detail:</strong> {{ $d->detail ?? '-' }}</p>

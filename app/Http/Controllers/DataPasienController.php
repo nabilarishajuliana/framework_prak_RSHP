@@ -17,58 +17,38 @@ class DataPasienController extends Controller
     /** =====================================
      *  INDEX (list semua pasien)
      * ====================================== */
-      public function index()
+    public function index()
     {
         $today = Carbon::today();
 
+
         $pasien = TemuDokter::with([
-            // PET (boleh sudah dihapus)
             'pet' => function ($q) {
                 $q->withTrashed()->with([
                     'pemilik' => function ($p) {
                         $p->withTrashed()->with([
-                            'user' => function ($u) {
-                                $u->withTrashed();
-                            }
-                        ]);
-                    }
-                ]);
-            },
-
-            // REKAM MEDIS + DETAIL (semua withTrashed)
-            'rekamMedis' => function ($q) {
-                $q->withTrashed()->with([
-                    'detail' => function ($d) {
-                        $d->withTrashed()->with([
-                            'kodeTindakan' => function ($kt) {
-                                $kt->withTrashed();
-                            }
+                            'user' => fn($u) => $u->withTrashed()
                         ]);
                     },
-                    'dokterPemeriksa' => function ($dok) {
-                        $dok->withTrashed()->with([
-                            'user' => function ($u) {
-                                $u->withTrashed();
-                            }
-                        ]);
-                    }
+                    'rasHewan'
                 ]);
             },
 
-            // ROLE USER (boleh sudah terhapus)
-            'roleUser' => function ($ru) {
-                $ru->withTrashed()->with([
-                    'user' => function ($u) {
-                        $u->withTrashed();
+            // ✅ hanya rekam medis AKTIF untuk cek tombol & tampil dokter/tanggal
+            'rekamMedis' => function ($q) {
+                $q->with([
+                    'dokterPemeriksa' => function ($dok) {
+                        $dok->withTrashed()->with([
+                            'user' => fn($u) => $u->withTrashed()
+                        ]);
                     }
                 ]);
             }
-
         ])
-        ->whereNull('deleted_at')             // TemuDokter harus aktif
-        ->whereDate('waktu_daftar', $today)
-        ->orderBy('no_urut', 'asc')
-        ->get();
+            ->whereNull('deleted_at')
+            ->whereDate('waktu_daftar', $today)
+            ->orderBy('no_urut', 'asc')
+            ->get();
 
         if ($this->isRole('dokter')) {
             return view('pageDokter.pagePasien.index', compact('pasien'));
@@ -82,57 +62,44 @@ class DataPasienController extends Controller
     /** =====================================
      *  DETAIL PASIEN
      * ====================================== */
-   public function detail($id)
+    public function detail($id)
     {
         $data = TemuDokter::with([
             'pet' => function ($q) {
                 $q->withTrashed()->with([
                     'pemilik' => function ($p) {
                         $p->withTrashed()->with([
-                            'user' => function ($u) {
-                                $u->withTrashed();
-                            }
+                            'user' => fn($u) => $u->withTrashed()
                         ]);
-                    }
+                    },
+                    'rasHewan'
                 ]);
             },
 
-            'rekamMedis' => function ($q) {
+            // ✅ di detail baru load lengkap (aktif + trashed kalau mau histori)
+            'rekamMedisAll' => function ($q) {
                 $q->withTrashed()->with([
                     'detail' => function ($d) {
                         $d->withTrashed()->with([
-                            'kodeTindakan' => function ($kt) {
-                                $kt->withTrashed();
-                            }
+                            'kodeTindakan' => fn($kt) => $kt->withTrashed()
                         ]);
                     },
                     'dokterPemeriksa' => function ($dok) {
                         $dok->withTrashed()->with([
-                            'user' => function ($u) {
-                                $u->withTrashed();
-                            }
+                            'user' => fn($u) => $u->withTrashed()
                         ]);
                     }
                 ]);
-            },
-
-            'roleUser' => function ($ru) {
-                $ru->withTrashed()->with([
-                    'user' => function ($u) {
-                        $u->withTrashed();
-                    }
-                ]);
             }
-
         ])
-        ->withTrashed()     // detail boleh lihat semua data lampau
-        ->findOrFail($id);
+            ->withTrashed()
+            ->findOrFail($id);
 
-         if ($this->isRole('dokter')) {
+
+        if ($this->isRole('dokter')) {
             return view('pageDokter.pagePasien.detail', compact('data'));
         }
 
         return view('pagePerawat.pagePasien.detail', compact('data'));
     }
-
 }

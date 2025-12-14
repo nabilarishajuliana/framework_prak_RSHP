@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
 use App\Models\JenisHewan;
 use Illuminate\Support\Facades\DB; // ✅ pakai Query Builder, bukan Eloquent
@@ -11,16 +13,20 @@ class JenisHewanController extends Controller
 {
     public function index()
     {
-                // Ambil semua data dari tabel jenis_hewan pakai query builder
-        $jenisHewan = DB::table('jenis_hewan')->select('idjenis_hewan', 'nama_jenis_hewan')->get();
+        $jenisHewan = JenisHewan::all();
 
         return view('pageadmin.pagejenishewan.index', compact('jenisHewan'));
-        // // Ambil semua data dari tabel jenis_hewan
-        // $jenisHewan = JenisHewan::all();
-
-        // // Kirim ke view
-        // return view('pageadmin.pageJenisHewan.index', compact('jenisHewan'));
     }
+
+
+// // INI PAKAI QUERY BUILDER
+//     public function index()
+//     {
+//         $jenisHewan = DB::table('jenis_hewan')->select('idjenis_hewan', 'nama_jenis_hewan')->get();
+
+//         return view('pageadmin.pagejenishewan.index', compact('jenisHewan'));
+        
+//     }
 
     /** Menampilkan form create */
     public function create()
@@ -28,29 +34,34 @@ class JenisHewanController extends Controller
         return view('pageadmin.pagejenishewan.create');
     }
 
-     public function store(Request $request)
+    public function store(Request $request)
     {
-        // // 🔒 Panggil fungsi validasi private
-        // $validatedData = $this->validateJenisHewan($request);
+        $validatedData = $this->validateJenisHewan($request);
 
-        // // ✨ Simpan data dengan nama yang sudah diformat dari helper
-        // JenisHewan::create([
-        //     'nama_jenis_hewan' => $this->formatNamaJenisHewan($validatedData['nama_jenis_hewan']),
-        // ]);
-
-        // return redirect()->route('admin.jenis.hewan')
-        //                  ->with('success', 'Jenis hewan berhasil ditambahkan!');
-
-         $validatedData = $this->validateJenisHewan($request);
-
-        // Insert data pakai Query Builder
-        DB::table('jenis_hewan')->insert([
+        JenisHewan::create([
             'nama_jenis_hewan' => $this->formatNamaJenisHewan($validatedData['nama_jenis_hewan']),
         ]);
 
         return redirect()->route('admin.jenis.hewan')
-                         ->with('success', 'Jenis hewan berhasil ditambahkan!');
+            ->with('success', 'Jenis hewan berhasil ditambahkan!');
     }
+
+
+// INI STORE PAKAI QUERY BUILDER
+    //  public function store(Request $request)
+    // {
+        
+
+    //      $validatedData = $this->validateJenisHewan($request);
+
+    //     // Insert data pakai Query Builder
+    //     DB::table('jenis_hewan')->insert([
+    //         'nama_jenis_hewan' => $this->formatNamaJenisHewan($validatedData['nama_jenis_hewan']),
+    //     ]);
+
+    //     return redirect()->route('admin.jenis.hewan')
+    //                      ->with('success', 'Jenis hewan berhasil ditambahkan!');
+    // }
 
     /** 
      * 🟢 Menampilkan form edit data 
@@ -74,7 +85,7 @@ class JenisHewanController extends Controller
         ]);
 
         return redirect()->route('admin.jenis.hewan')
-                         ->with('success', 'Data berhasil diperbarui!');
+            ->with('success', 'Data berhasil diperbarui!');
     }
 
     /** 
@@ -83,11 +94,24 @@ class JenisHewanController extends Controller
     public function destroy($id)
     {
         $jenisHewan = JenisHewan::findOrFail($id);
+
+        // 🔒 Cegah hapus jika masih ada ras aktif
+        if ($jenisHewan->rasHewan()->whereNull('deleted_at')->exists()) {
+            return redirect()->route('admin.jenis.hewan')
+                ->with('error', 'Jenis hewan tidak bisa dihapus karena masih memiliki ras.');
+        }
+
+        // 🔥 isi deleted_by
+        $jenisHewan->deleted_by = Auth::id();
+        $jenisHewan->save();
+
+        // soft delete
         $jenisHewan->delete();
 
         return redirect()->route('admin.jenis.hewan')
-                         ->with('success', 'Data berhasil dihapus!');
+            ->with('success', 'Jenis hewan berhasil dihapus!');
     }
+
 
     /* =====================================================
      * 🔒 Private Functions (Helper & Validation)
@@ -116,41 +140,4 @@ class JenisHewanController extends Controller
         // Hilangkan spasi berlebih & kapital di awal kata
         return ucwords(trim($nama));
     }
-
-    /** Simpan data jenis hewan baru */
-    // public function store(Request $request)
-    // {
-    //     $this->validateJenisHewan($request);
-
-    //     $this->createJenisHewan($request);
-
-    //     return redirect()
-    //         ->route('admin.jenis.hewan')
-    //         ->with('success', 'Jenis hewan berhasil ditambahkan!');
-    // }
-
-    /** 🔹 VALIDASI INPUT */
-    // private function validateJenisHewan(Request $request)
-    // {
-    //     $request->validate([
-    //         'nama_jenis_hewan' => 'required|string|max:100|unique:jenis_hewan,nama_jenis_hewan',
-    //     ], [
-    //         'nama_jenis_hewan.required' => 'Nama jenis hewan wajib diisi.',
-    //         'nama_jenis_hewan.unique' => 'Jenis hewan sudah terdaftar.',
-    //     ]);
-    // }
-
-    /** 🔹 HELPER: Format nama sebelum disimpan */
-    // private function formatNamaJenisHewan($nama)
-    // {
-    //     return ucwords(strtolower(trim($nama)));
-    // }
-
-    /** 🔹 HELPER: Create record */
-    // private function createJenisHewan(Request $request)
-    // {
-    //     JenisHewan::create([
-    //         'nama_jenis_hewan' => $this->formatNamaJenisHewan($request->nama_jenis_hewan),
-    //     ]);
-    // }
 }

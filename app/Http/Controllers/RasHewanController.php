@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
 
 use App\Models\RasHewan;
 use App\Models\JenisHewan;
+
 class RasHewanController extends Controller
 {
     public function index()
@@ -16,7 +19,7 @@ class RasHewanController extends Controller
         return view('pageadmin.pagerashewan.index', compact('rasHewan'));
     }
 
-      /** 🔹 Form tambah ras */
+    /** 🔹 Form tambah ras */
     public function create()
     {
         $jenisHewan = JenisHewan::orderBy('nama_jenis_hewan')->get();
@@ -34,7 +37,7 @@ class RasHewanController extends Controller
         ]);
 
         return redirect()->route('admin.ras.hewan')
-                         ->with('success', 'Ras hewan berhasil ditambahkan!');
+            ->with('success', 'Ras hewan berhasil ditambahkan!');
     }
 
     /** 🔹 Form edit */
@@ -58,18 +61,30 @@ class RasHewanController extends Controller
         ]);
 
         return redirect()->route('admin.ras.hewan')
-                         ->with('success', 'Data ras berhasil diperbarui!');
+            ->with('success', 'Data ras berhasil diperbarui!');
     }
 
     /** 🔹 Hapus data */
     public function destroy($id)
     {
         $rasHewan = RasHewan::findOrFail($id);
+
+        // 🔒 Cegah hapus jika masih dipakai pet
+        if ($rasHewan->pet()->whereNull('deleted_at')->exists()) {
+            return redirect()->route('admin.ras.hewan')
+                ->with('error', 'Ras hewan tidak bisa dihapus karena masih digunakan oleh pet.');
+        }
+
+        // 🔥 isi deleted_by
+        $rasHewan->deleted_by = Auth::id();
+        $rasHewan->save();
+
         $rasHewan->delete();
 
         return redirect()->route('admin.ras.hewan')
-                         ->with('success', 'Ras hewan berhasil dihapus!');
+            ->with('success', 'Ras hewan berhasil dihapus!');
     }
+
 
     /* =====================================================
      * 🔒 PRIVATE: Helper & Validation

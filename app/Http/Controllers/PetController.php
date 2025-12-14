@@ -18,9 +18,8 @@ class PetController extends Controller
     /** ================= INDEX ================= */
     public function index()
     {
-        $pets = Pet::with(['rasHewan', 'pemilik'])
-                    ->whereNull('deleted_at')
-                    ->get();
+        $pets = Pet::with(['rasHewan', 'pemilik'])->get();
+
 
         if ($this->isRole('administrator')) {
             return view('pageadmin.pagepet.index', compact('pets'));
@@ -32,7 +31,7 @@ class PetController extends Controller
     /** ================= CREATE ================= */
     public function create()
     {
-        $pemilik = Pemilik::with('user')->get();
+        $pemilik = Pemilik::with('user')->whereNull('deleted_at')->get();
         $rasHewan = RasHewan::with('jenisHewan')->get();
 
         if ($this->isRole('administrator')) {
@@ -67,7 +66,7 @@ class PetController extends Controller
     public function edit($id)
     {
         $pet = Pet::with(['pemilik.user', 'rasHewan'])->findOrFail($id);
-        $pemilik = Pemilik::with('user')->get();
+        $pemilik = Pemilik::with('user')->whereNull('deleted_at')->get();
         $rasHewan = RasHewan::with('jenisHewan')->get();
 
         if ($this->isRole('administrator')) {
@@ -102,17 +101,27 @@ class PetController extends Controller
     /** ================= DELETE (soft delete) ================= */
     public function destroy($id)
     {
-        $pet = Pet::findOrFail($id);
-        $pet->deleted_by = Auth::id();
-        $pet->save();
-        $pet->delete();
+        try {
+            $pet = Pet::findOrFail($id);
 
-        if ($this->isRole('administrator')) {
-            return redirect()->route('admin.pet')->with('success', 'Pet berhasil dihapus!');
+            $pet->deleted_by = Auth::id();
+            $pet->save();
+            $pet->delete();
+
+            $message = 'Pet berhasil dihapus.';
+            $type = 'success';
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $type = 'error';
         }
 
-        return redirect()->route('resepsionis.pet')->with('success', 'Pet berhasil dihapus!');
+        if ($this->isRole('administrator')) {
+            return redirect()->route('admin.pet')->with($type, $message);
+        }
+
+        return redirect()->route('resepsionis.pet')->with($type, $message);
     }
+
 
     /** ================= VALIDATION ================= */
     private function validatePet(Request $request): array
@@ -127,23 +136,23 @@ class PetController extends Controller
         ]);
     }
 
-     public function indexPemilik()
+    public function indexPemilik()
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::where('iduser', $idUser)->first();
-        
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         $pets = Pet::with('rasHewan.jenisHewan')
             ->where('idpemilik', $pemilik->idpemilik)
             ->whereNull('deleted_at')
             ->orderBy('nama', 'asc')
             ->get();
-        
+
         return view('pagePemilik.pagePet.index', compact('pemilik', 'pets'));
     }
 }

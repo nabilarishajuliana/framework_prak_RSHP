@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Pemilik;
 
 use Illuminate\Http\Request;
@@ -154,7 +155,13 @@ class RekamMedisController extends Controller
                     }
                 ]);
             },
-            'dokterPemeriksa.user',
+            'dokterPemeriksa' => function ($q) {
+                $q->withTrashed()->with([
+                    'user' => function ($p) {
+                        $p->withTrashed();
+                    }
+                ]);
+            },
             'detail'
         ])
             ->orderBy('created_at', 'desc')
@@ -178,7 +185,13 @@ class RekamMedisController extends Controller
                     }
                 ]);
             },
-            'dokterPemeriksa.user',
+            'dokterPemeriksa' => function ($q) {
+                $q->withTrashed()->with([
+                    'user' => function ($p) {
+                        $p->withTrashed();
+                    }
+                ]);
+            },
             'detail.kodeTindakan' => function ($q) {
                 $q->with(['kategori', 'kategoriKlinis']);
             }
@@ -263,7 +276,10 @@ class RekamMedisController extends Controller
             ]);
 
             // 3. Soft delete semua detail rekam medis yang lama
+            DetailRekamMedis::where('idrekam_medis', $id)
+                ->update(['deleted_by' => Auth::id()]);
             DetailRekamMedis::where('idrekam_medis', $id)->delete();
+
 
             // 4. Insert detail rekam medis yang baru
             foreach ($request->idkode_tindakan_terapi as $index => $kodeTindakan) {
@@ -300,13 +316,21 @@ class RekamMedisController extends Controller
 
         try {
             $rekam = RekamMedis::findOrFail($id);
+            $reservasi = $rekam->reservasi;
 
             // Soft delete detail rekam medis
+            DetailRekamMedis::where('idrekam_medis', $id)
+                ->update(['deleted_by' => Auth::id()]);
             DetailRekamMedis::where('idrekam_medis', $id)->delete();
-
             // Soft delete rekam medis utama
+            $rekam->deleted_by = Auth::id();
+            $rekam->save();
             $rekam->delete();
 
+            if ($reservasi) {
+                $reservasi->status = 'N';
+                $reservasi->save();
+            }
             DB::commit();
 
             $redirectRoute = $this->isRole('administrator')
@@ -332,27 +356,33 @@ class RekamMedisController extends Controller
     public function indexPemilik()
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::where('iduser', $idUser)->first();
-        
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         // Ambil semua rekam medis dari pet-pet yang dimiliki
         $rekamMedis = RekamMedis::with([
-                'temuDokter.pet.rasHewan',
-                'dokterPemeriksa.user',
-                'detail.kodeTindakan'
-            ])
-            ->whereHas('temuDokter.pet', function($query) use ($pemilik) {
+            'reservasi.pet.rasHewan',
+            'dokterPemeriksa' => function ($q) {
+                $q->withTrashed()->with([
+                    'user' => function ($p) {
+                        $p->withTrashed();
+                    }
+                ]);
+            },
+            'detail.kodeTindakan'
+        ])
+            ->whereHas('reservasi.pet', function ($query) use ($pemilik) {
                 $query->where('idpemilik', $pemilik->idpemilik);
             })
             ->whereNull('rekam_medis.deleted_at')
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return view('pagePemilik.pageRekamMedis.index', compact('pemilik', 'rekamMedis'));
     }
 
@@ -362,31 +392,37 @@ class RekamMedisController extends Controller
     public function showPemilik($id)
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::where('iduser', $idUser)->first();
-        
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         $rekamMedis = RekamMedis::with([
-                'temuDokter.pet.rasHewan',
-                'dokterPemeriksa.user',
-                'detail.kodeTindakan.kategori'
-            ])
-            ->whereHas('temuDokter.pet', function($query) use ($pemilik) {
+            'reservasi.pet.rasHewan',
+            'dokterPemeriksa' => function ($q) {
+                $q->withTrashed()->with([
+                    'user' => function ($p) {
+                        $p->withTrashed();
+                    }
+                ]);
+            },
+            'detail.kodeTindakan.kategori'
+        ])
+            ->whereHas('reservasi.pet', function ($query) use ($pemilik) {
                 $query->where('idpemilik', $pemilik->idpemilik);
             })
             ->where('idrekam_medis', $id)
             ->whereNull('rekam_medis.deleted_at')
             ->first();
-            
+
         if (!$rekamMedis) {
             return redirect()->route('pemilik.rekammedis.index')
                 ->with('error', 'Rekam medis tidak ditemukan');
         }
-        
+
         return view('pagePemilik.pageRekamMedis.show', compact('pemilik', 'rekamMedis'));
     }
 
@@ -396,31 +432,31 @@ class RekamMedisController extends Controller
     public function print($id)
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::where('iduser', $idUser)->first();
-        
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         $rekamMedis = RekamMedis::with([
-                'temuDokter.pet.rasHewan',
-                'dokterPemeriksa.user',
-                'detailRekamMedis.kodeTindakanTerapi.kategori'
-            ])
-            ->whereHas('temuDokter.pet', function($query) use ($pemilik) {
+            'reservasi.pet.rasHewan',
+            'dokterPemeriksa.user',
+            'detailRekamMedis.kodeTindakanTerapi.kategori'
+        ])
+            ->whereHas('reservasi.pet', function ($query) use ($pemilik) {
                 $query->where('idpemilik', $pemilik->idpemilik);
             })
             ->where('idrekam_medis', $id)
             ->whereNull('rekam_medis.deleted_at')
             ->first();
-            
+
         if (!$rekamMedis) {
             return redirect()->route('pemilik.rekammedis.index')
                 ->with('error', 'Rekam medis tidak ditemukan');
         }
-        
+
         return view('pagePemilik.pageRekamMedis.print', compact('pemilik', 'rekamMedis'));
     }
 }

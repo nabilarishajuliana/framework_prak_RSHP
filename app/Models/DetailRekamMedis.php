@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -25,12 +26,14 @@ class DetailRekamMedis extends Model
     /** Relasi ke rekam medis */
     public function rekamMedis()
     {
-        return $this->belongsTo(RekamMedis::class, 'idrekam_medis', 'idrekam_medis');
+        return $this->belongsTo(RekamMedis::class, 'idrekam_medis', 'idrekam_medis')
+            ->withTrashed();
     }
+
 
     /** Relasi ke Kode Tindakan Terapi */
     public function kodeTindakan()
     {
-        return $this->belongsTo(KodeTindakanTerapi::class, 'idkode_tindakan_terapi', 'idkode_tindakan_terapi');
+        return $this->belongsTo(KodeTindakanTerapi::class, 'idkode_tindakan_terapi', 'idkode_tindakan_terapi')->withTrashed();
     }
 }

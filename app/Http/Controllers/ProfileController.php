@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Pemilik;
 
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ use App\Models\Perawat;
 
 class ProfileController extends Controller
 {
-     /** =========================
+    /** =========================
      * SHOW PROFILE
      * ========================== */
     public function index()
@@ -22,7 +23,7 @@ class ProfileController extends Controller
 
         $perawat = Perawat::withTrashed()
             ->where('iduser', $userId)
-            ->first()?? new Perawat();
+            ->first() ?? new Perawat();
 
         return view('pagePerawat.pageProfile.index', compact('user', 'perawat'));
     }
@@ -35,7 +36,7 @@ class ProfileController extends Controller
 
         $dokter = Dokter::withTrashed()
             ->where('iduser', $userId)
-            ->first()?? new Dokter();;
+            ->first() ?? new Dokter();;
 
         return view('pageDokter.pageProfile.index', compact('user', 'dokter'));
     }
@@ -43,16 +44,16 @@ class ProfileController extends Controller
     public function indexPemilik()
     {
         $idUser = session('user_id');
-        
+
         $pemilik = Pemilik::with('user')
             ->where('iduser', $idUser)
             ->first();
-            
+
         if (!$pemilik) {
             return redirect()->route('login')
                 ->with('error', 'Data pemilik tidak ditemukan');
         }
-        
+
         return view('pagePemilik.pageProfile.index', compact('pemilik'));
     }
 }

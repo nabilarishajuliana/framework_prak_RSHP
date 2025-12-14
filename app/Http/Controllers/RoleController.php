@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Http\Request;
 use App\Models\Role;
 
 class RoleController extends Controller
 {
-     public function index()
+    public function index()
     {
         // Ambil semua role + relasi ke role_user
-        $roles = Role::with('users')->get();
+        $roles = Role::with('users')->get(); // tetap OK
 
         return view('pageadmin.pagerole.index', compact('roles'));
     }
 
-        /** 🔹 Form tambah role */
+    /** 🔹 Form tambah role */
     public function create()
     {
         return view('pageadmin.pagerole.create');
@@ -52,9 +54,14 @@ class RoleController extends Controller
     {
         $role = Role::findOrFail($id);
 
-        if ($role->users()->count() > 0) {
-            return redirect()->route('admin.role')->with('error', 'Role tidak bisa dihapus karena masih digunakan oleh user.');
+        if ($role->roleUser()->whereNull('deleted_at')->exists()) {
+            return redirect()->route('admin.role')
+                ->with('error', 'Role tidak bisa dihapus karena masih digunakan oleh user aktif.');
         }
+
+        // 🔥 isi deleted_by
+        $role->deleted_by =  Auth::id(); // asumsi pakai auth
+        $role->save();
 
         $role->delete();
 

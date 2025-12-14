@@ -6,7 +6,7 @@
 <div class="app-content-header">
     <div class="container-fluid">
         <h3 class="fw-bold text-dark mb-0"><i class="bi bi-people text-primary me-2"></i>Data Pasien</h3>
-        <p class="text-muted small">Daftar pasien yang sudah memiliki rekam medis.</p>
+        <p class="text-muted small">Daftar pasien Hari ini.</p>
     </div>
 </div>
 
@@ -54,23 +54,24 @@
 
                             <td class="text-center">
 
-                                @if($p->status === 'N')
-                                {{-- Belum ada rekam medis --}}
+                                @php
+                                $rmAktif = $p->rekamMedis; // ini sekarang hanya yang AKTIF (deleted_at NULL)
+                                @endphp
+
+                                @if(!$rmAktif)
+                                {{-- ✅ belum ada rekam medis aktif (atau pernah ada tapi sudah dihapus) --}}
                                 <a href="{{ route('perawat.rekammedis.create', $p->idreservasi_dokter) }}"
                                     class="btn btn-success btn-sm rounded-pill px-3">
                                     + Rekam Medis
                                 </a>
-
-                                @elseif($p->status === 'S' && $p->rekamMedis)
-                                {{-- Sudah ada rekam medis --}}
+                                @else
+                                {{-- ✅ sudah ada rekam medis aktif --}}
                                 <a href="{{ route('perawat.dataPasien.detail', $p->idreservasi_dokter) }}"
                                     class="btn btn-info btn-sm rounded-pill px-3">
                                     Detail
                                 </a>
-
-                                @else
-                                <span class="text-muted fst-italic">Tidak tersedia</span>
                                 @endif
+
 
                             </td>
 
