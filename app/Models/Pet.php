@@ -49,23 +49,6 @@ class Pet extends Model
     }
 
     /* ============================
-     * DELETE PROTECTION
-     * ============================ */
-
-    protected static function booted()
-    {
-        static::deleting(function ($pet) {
-
-            // ❗ CUKUP CEK TEMU DOKTER
-            if ($pet->temuDokter()->whereNull('deleted_at')->exists()) {
-                throw new \Exception(
-                    "Pet tidak bisa dihapus karena masih memiliki temu dokter aktif."
-                );
-            }
-        });
-    }
-
-    /* ============================
      * ACCESSORS
      * ============================ */
 

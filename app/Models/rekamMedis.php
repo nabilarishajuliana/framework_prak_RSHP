@@ -25,14 +25,7 @@ class RekamMedis extends Model
         'deleted_by'
     ];
 
-    /* ================= RELASI ================= */
-
-    // Rekam medis milik 1 antrian temu dokter
-    // public function temuDokter()
-    // {
-    //     return $this->belongsTo(TemuDokter::class, 'idReservasi_dokter', 'idreservasi_dokter')->withTrashed();
-    // }
-
+  
     // Dokter pemeriksa
     public function dokterPemeriksa()
     {
@@ -80,3 +73,11 @@ class RekamMedis extends Model
         });
     }
 }
+
+  /* ================= RELASI ================= */
+
+    // Rekam medis milik 1 antrian temu dokter
+    // public function temuDokter()
+    // {
+    //     return $this->belongsTo(TemuDokter::class, 'idReservasi_dokter', 'idreservasi_dokter')->withTrashed();
+    // }

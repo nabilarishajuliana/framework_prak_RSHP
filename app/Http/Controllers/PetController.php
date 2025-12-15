@@ -99,28 +99,31 @@ class PetController extends Controller
     }
 
     /** ================= DELETE (soft delete) ================= */
-    public function destroy($id)
-    {
-        try {
-            $pet = Pet::findOrFail($id);
+public function destroy($id)
+{
+    $pet = Pet::findOrFail($id);
 
-            $pet->deleted_by = Auth::id();
-            $pet->save();
-            $pet->delete();
+    // 🔒 CEGAH hapus jika masih ada temu dokter aktif
+    if ($pet->temuDokter()->whereNull('deleted_at')->exists()) {
+        $message = 'Pet tidak bisa dihapus karena masih memiliki temu dokter aktif.';
+        $type = 'error';
+    } else {
+        // 🔥 isi deleted_by SETELAH aman
+        $pet->deleted_by = Auth::id();
+        $pet->save();
+        $pet->delete();
 
-            $message = 'Pet berhasil dihapus.';
-            $type = 'success';
-        } catch (\Exception $e) {
-            $message = $e->getMessage();
-            $type = 'error';
-        }
-
-        if ($this->isRole('administrator')) {
-            return redirect()->route('admin.pet')->with($type, $message);
-        }
-
-        return redirect()->route('resepsionis.pet')->with($type, $message);
+        $message = 'Pet berhasil dihapus.';
+        $type = 'success';
     }
+
+    if ($this->isRole('administrator')) {
+        return redirect()->route('admin.pet')->with($type, $message);
+    }
+
+    return redirect()->route('resepsionis.pet')->with($type, $message);
+}
+
 
 
     /** ================= VALIDATION ================= */
